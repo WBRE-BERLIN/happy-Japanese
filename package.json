@@ -1,0 +1,10 @@
+{
+  "name": "happy-japanese",
+  "private": true,
+  "description": "Developer scripts only. The app itself needs no Node.js.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/js/*.test.mjs",
+    "check": "node tools/check-content.mjs"
+  }
+}
