@@ -33,6 +33,8 @@ function itemsFor(words, prefix, ctx) {
   const dirs = ctx.opts.dir === 'mix' || !ctx.opts.dir ? ['jd', 'dj'] : [ctx.opts.dir];
   return words.flatMap((w) => dirs.map((dir) => ({
     id: `${prefix}:${wordKey(w)}:${dir === 'jd' ? 'r' : 'p'}`,
+    // Both directions of a word are one group: never both in the same session.
+    group: `${prefix}:${wordKey(w)}`,
     lesson: w.lesson || undefined,
     tags: [w.lesson ? `L${w.lesson}` : `deck:${w.deck}`, `pos:${w.pos}`, `dir:${dir}`],
     word: w,

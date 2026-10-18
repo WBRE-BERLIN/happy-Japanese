@@ -16,8 +16,13 @@
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
   <link rel="stylesheet" href="assets/app.css">
   <script>
-    // Apply the saved theme before the first paint, so dark mode does not flash white.
-    try { const t = JSON.parse(localStorage.getItem('happyjapanese.theme')); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+    // Apply the saved theme and font size before the first paint, so nothing jumps.
+    try {
+      const t = JSON.parse(localStorage.getItem('happyjapanese.theme'));
+      if (t) document.documentElement.dataset.theme = t;
+      const z = JSON.parse(localStorage.getItem('happyjapanese.size'));
+      if (z) document.documentElement.dataset.size = z;
+    } catch (e) {}
   </script>
   <script type="module" src="assets/js/app.js"></script>
 </head>

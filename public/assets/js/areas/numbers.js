@@ -4,7 +4,7 @@ import {
   numberKana, numberKanji, numberParts, priceParts, timeParts, yearParts,
 } from '../lib/numbers.js';
 import { canSpeak, html, jp, raw } from '../lib/ui.js';
-import { choiceTask, furiWord, pick, rand, sample, shuffle } from './common.js';
+import { acceptJapanese, choiceTask, furiWord, pick, rand, sample, shuffle } from './common.js';
 
 const fmt = (n) => n.toLocaleString('en-US');
 
@@ -111,7 +111,7 @@ export const numbers = {
   items(ctx) {
     const modes = ctx.opts.mode && ctx.opts.mode !== 'mix' ? [ctx.opts.mode] : ['build', 'read', 'kanji', 'hear'];
     return NUMBER_FOCUS.filter((f) => !ctx.opts.range || ctx.opts.range === 'all' || f.range === ctx.opts.range)
-      .flatMap((f) => modes.map((mode) => ({ id: `num:${mode}:${f.id}`, lesson: f.range === 'small' ? 1 : 3, tags: [`num:${mode}`, `num:${f.range}`], focus: f, mode })));
+      .flatMap((f) => modes.map((mode) => ({ id: `num:${mode}:${f.id}`, group: `num:${f.id}`, lesson: f.range === 'small' ? 1 : 3, tags: [`num:${mode}`, `num:${f.range}`], focus: f, mode })));
   },
   task(item, ctx) {
     const n = item.focus.gen(ctx.rng);
@@ -148,7 +148,7 @@ export const prices = {
   ref: 'numbers',
   items(ctx) {
     const modes = ctx.opts.mode && ctx.opts.mode !== 'mix' ? [ctx.opts.mode] : ['build', 'hear', 'read'];
-    return PRICE_FOCUS.flatMap((f) => modes.map((mode) => ({ id: `pr:${mode}:${f.id}`, lesson: 3, tags: [`num:${mode}`, 'num:price'], focus: f, mode })));
+    return PRICE_FOCUS.flatMap((f) => modes.map((mode) => ({ id: `pr:${mode}:${f.id}`, group: `pr:${f.id}`, lesson: 3, tags: [`num:${mode}`, 'num:price'], focus: f, mode })));
   },
   task(item, ctx) {
     const product = pick(PRODUCTS.filter(item.focus.test), ctx.rng);
@@ -398,7 +398,7 @@ export const counters = {
   blurb: 'まい, だい, ほん, ひき … mit Lautwandel: さんぼん, ろっぴき',
   options: [
     { key: 'set', label: 'Zählwörter', choices: { common: 'Die wichtigsten 12', all: 'Alle', duration: 'Zeitdauer (時間, 週間 …)' }, default: 'common' },
-    { key: 'mode', label: 'Übungsart', choices: { mix: 'Gemischt', pick: 'Welches Zählwort?', count: 'Wie viele? (Lesung)' }, default: 'mix' },
+    { key: 'mode', label: 'Übungsart', choices: { mix: 'Gemischt', pick: 'Welches Zählwort? (Auswahl)', write: 'Zählen und eintippen', count: 'Wie viele? (Auswahl)' }, default: 'mix' },
   ],
   ref: 'counters',
   items(ctx) {
@@ -407,18 +407,45 @@ export const counters = {
     const chosen = COUNTERS.filter((c) => (set === 'all' ? true : set === 'duration' ? c.duration : COMMON.has(c.id)));
     const ids = new Set(chosen.map((c) => c.id));
     const items = [];
-    if (mode !== 'count' && set !== 'duration') {
-      for (const [emoji, , , accepted] of COUNT_OBJECTS) {
-        if (accepted.some((id) => ids.has(id))) items.push({ id: `ct:pick:${emoji}`, lesson: 11, tags: accepted.map((id) => `ctr:${id}`), object: COUNT_OBJECTS.find((o) => o[0] === emoji) });
+    if (set !== 'duration') {
+      for (const object of COUNT_OBJECTS) {
+        const [emoji, , , accepted] = object;
+        if (!accepted.some((id) => ids.has(id))) continue;
+        const tags = accepted.map((id) => `ctr:${id}`);
+        // Picking the counter and writing the count of the same thing are one group.
+        if (mode === 'mix' || mode === 'pick') items.push({ id: `ct:pick:${emoji}`, group: `ct:o:${emoji}`, lesson: 11, tags, object });
+        if (mode === 'mix' || mode === 'write') items.push({ id: `ct:write:${emoji}`, group: `ct:o:${emoji}`, lesson: 11, tags, object, write: true });
       }
     }
-    if (mode !== 'pick') {
-      for (const c of chosen) for (let n = 1; n <= 10; n++) items.push({ id: `ct:n:${c.id}:${n}`, lesson: c.lesson, tags: [`ctr:${c.id}`], counter: c, n });
+    if (mode === 'mix' || mode === 'count' || set === 'duration') {
+      for (const c of chosen) for (let n = 1; n <= 10; n++) items.push({ id: `ct:n:${c.id}:${n}`, group: `ct:${c.id}`, lesson: c.lesson, tags: [`ctr:${c.id}`], counter: c, n });
     }
     return items;
   },
   task(item, ctx) {
     const r = ctx.rng;
+    if (item.write) {
+      const [emoji, name, de, accepted] = item.object;
+      // Half of the time a number with a sound change (1, 3, 6, 8, 10).
+      const n = r() < 0.5 ? pick([1, 3, 6, 8, 10], r) : between(1, 10, r);
+      const counters = accepted.map((id) => counterById[id]);
+      const readings = counters.map((c) => counterReading(c, n));
+      const accept = acceptJapanese(...readings.flatMap((rd) => [rd.kana, ...rd.alt]),
+        ...counters.flatMap((c) => [`${n}${c.kanji}`, `${numberKanji(n)}${c.kanji}`]));
+      return {
+        kind: 'input',
+        label: `Wie viele ${de}? Schreib die Zahl mit Zählwort.`,
+        visual: html`<div class="count-emoji">${Array.from({ length: n }, () => emoji).join('')}</div>`.text,
+        prompt: html`<div class="big-jp">${jp(name)}</div>`.text,
+        placeholder: 'z. B. さんびき',
+        accept,
+        answerHtml: html`<span lang="ja">${readings.map((rd) => rd.kana).join(' / ')}</span>`.text,
+        hint: html`Zählwort <span lang="ja">${counters.map((c) => `${c.kanji}（${c.kana}）`).join(' oder ')}</span>`.text,
+        explain: counters.map(counterExplain).join(''),
+        speakAnswer: readings[0].kana,
+        tags: [...accepted.map((id) => `ctr:${id}`), ...([1, 3, 6, 8, 10].includes(n) ? ['ctr:sound'] : [])],
+      };
+    }
     if (item.object) {
       const [emoji, name, de, accepted] = item.object;
       const right = counterById[accepted[0]];

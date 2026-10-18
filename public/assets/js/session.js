@@ -34,44 +34,52 @@ export function planSession({ sources, settings, states, size = 20, focus = 'mix
 
   const due = all.filter((item) => isDue(stateOf(item), now))
     .sort((a, b) => (difficulty(stateOf(b)) - difficulty(stateOf(a))) || ((stateOf(a).due ?? 0) - (stateOf(b).due ?? 0)));
-  const fresh = roundRobin(perSource.map((items) => items.filter((item) => !stateOf(item))
+  // New items: lesson by lesson, but in random order within a lesson (sort is stable).
+  const fresh = roundRobin(perSource.map((items) => shuffle(items.filter((item) => !stateOf(item)))
     .sort((a, b) => (a.lesson ?? 0) - (b.lesson ?? 0))));
   const seen = all.filter((item) => stateOf(item) && !isDue(stateOf(item), now))
     .sort((a, b) => (difficulty(stateOf(b)) - difficulty(stateOf(a))) || ((stateOf(a).last ?? 0) - (stateOf(b).last ?? 0)));
 
-  const chosen = [];
-  const taken = new Set();
-  const take = (items, limit) => {
-    for (const item of items) {
-      if (chosen.length >= size || limit <= 0) break;
-      if (taken.has(item.id)) continue;
-      taken.add(item.id);
-      chosen.push(item);
-      limit--;
-    }
-  };
-
+  // Each step: candidates, how many of them at most.
+  const steps = [];
   if (focus === 'weak') {
     const tagSet = new Set(weakTags);
     const tagged = all.filter((item) => item.tags?.some((t) => tagSet.has(t)) && stateOf(item));
-    const hard = [...due, ...seen].filter((item) => difficulty(stateOf(item)) > 0.3);
-    take(shuffle(tagged).sort((a, b) => difficulty(stateOf(b)) - difficulty(stateOf(a))), size);
-    take(hard, size);
-    take(all.filter((item) => item.tags?.some((t) => tagSet.has(t))), size);
-    take(due, size);
+    steps.push([shuffle(tagged).sort((a, b) => difficulty(stateOf(b)) - difficulty(stateOf(a))), size]);
+    steps.push([[...due, ...seen].filter((item) => difficulty(stateOf(item)) > 0.3), size]);
+    steps.push([shuffle(all.filter((item) => item.tags?.some((t) => tagSet.has(t)))), size]);
+    steps.push([due, size]);
   } else if (focus === 'new') {
-    take(fresh, size);
+    steps.push([fresh, size]);
   } else if (focus === 'review') {
-    take(due, size);
-    take(seen, size);
+    steps.push([due, size], [seen, size]);
   } else {
-    take(due, size);
-    take(fresh, Math.min(newLeft, Math.ceil(size * 0.6)));
-    take(seen.filter((item) => difficulty(stateOf(item)) > 0.25), size);
+    steps.push([due, size]);
+    steps.push([fresh, Math.min(newLeft, Math.ceil(size * 0.6))]);
+    steps.push([seen.filter((item) => difficulty(stateOf(item)) > 0.25), size]);
     // Practising one area on purpose: keep going with new items past the daily limit.
-    if (explicit) take(fresh, size);
+    if (explicit) steps.push([fresh, size]);
     // Otherwise fill up with items reviewed ahead of time, never with more new ones.
-    take(seen, size);
+    steps.push([seen, size]);
+  }
+
+  // Related items (the same word in both directions, the same counter …) go into
+  // one session only once; a second pass allows them when the session is short.
+  const chosen = [];
+  const taken = new Set();
+  const groups = new Set();
+  const left = steps.map(([, limit]) => limit);
+  for (const strict of [true, false]) {
+    steps.forEach(([items], step) => {
+      for (const item of items) {
+        if (chosen.length >= size || left[step] <= 0) break;
+        if (taken.has(item.id) || (strict && groups.has(groupOf(item)))) continue;
+        taken.add(item.id);
+        groups.add(groupOf(item));
+        chosen.push(item);
+        left[step]--;
+      }
+    });
   }
 
   // Mix the order but keep new items apart, so there is never a long run of unknown cards.
@@ -84,7 +92,20 @@ export function planSession({ sources, settings, states, size = 20, focus = 'mix
     for (let i = 0; i < gap && known.length; i++) ordered.push(known.shift());
     if (!unknown.length) ordered.push(...known.splice(0));
   }
-  return ordered;
+  return spreadGroups(ordered);
+}
+
+const groupOf = (item) => item.group ?? item.id;
+
+/** Moves items so that two of the same group never follow each other, where possible. */
+export function spreadGroups(list) {
+  const out = [...list];
+  for (let i = 1; i < out.length; i++) {
+    if (groupOf(out[i]) !== groupOf(out[i - 1])) continue;
+    const j = out.findIndex((item, k) => k > i && groupOf(item) !== groupOf(out[i - 1]) && (k + 1 >= out.length || groupOf(out[k + 1]) !== groupOf(out[i])));
+    if (j > 0) [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
 }
 
 export class Session {

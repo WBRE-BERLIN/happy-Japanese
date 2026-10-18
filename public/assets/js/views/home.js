@@ -5,6 +5,7 @@ import { cat } from '../lib/cat.js';
 import { html, icon, raw } from '../lib/ui.js';
 import { areasForTag, areaById, tagLabel } from '../areas/index.js';
 import { areaItems } from '../session.js';
+import { chooseAndStart } from './start.js';
 
 const HINT_KEY = 'happyjapanese.installHintClosed';
 
@@ -126,9 +127,11 @@ export function renderHome(app, main) {
       case 'mix': app.startPractice({ sources, title: 'Tagesmix' }); break;
       case 'review': app.startPractice({ sources, focus: 'review', title: 'Wiederholen' }); break;
       case 'weak': app.startPractice({ sources, focus: 'weak', weakTags: weak.map((w) => w.tag), title: 'Schwächen üben' }); break;
-      case 'new': app.startPractice({
-        sources: [{ area: areaById.vocab, saved: { ...app.areaSaved('vocab'), lessons: 'current' } }], focus: 'new', title: `Neue Wörter Lektion ${settings.lesson}`, explicit: true,
-      }); break;
+      case 'new':
+        chooseAndStart(app, areaById.vocab, app.areaSaved('vocab'), (saved) => app.startPractice({
+          sources: [{ area: areaById.vocab, saved: { ...saved, lessons: 'current' } }], focus: 'new', title: `Neue Wörter Lektion ${settings.lesson}`, explicit: true,
+        }));
+        break;
       case 'lesson-up': app.saveSettings({ lesson: Math.min(25, settings.lesson + 1) }); app.go('#/'); break;
       case 'lesson-down': app.saveSettings({ lesson: Math.max(1, settings.lesson - 1) }); app.go('#/'); break;
       case 'close-hint':

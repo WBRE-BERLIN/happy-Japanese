@@ -11,8 +11,9 @@ Japanisch für die nächste Reise. Mit Katze Mochi. 🐈
   **offline**, der Fortschritt wird später synchronisiert.
 - Mehrere Benutzer mit Konto (Name + Passwort, ohne E-Mail, ohne MFA).
 - **Erinnerungen per Push-Mitteilung** (iOS 16.4 oder neuer, installierte App).
-- Hell- und Dunkelmodus, Furigana über allen Kanji, Romaji werden beim
-  Tippen automatisch zu Kana, Japanisch vorlesen mit der iPhone-Stimme.
+- Hell- und Dunkelmodus, drei Schriftgrößen, Furigana über allen Kanji,
+  Romaji werden beim Tippen automatisch zu Kana, Japanisch vorlesen mit der
+  iPhone-Stimme.
 
 ## Was es zu üben gibt
 
@@ -37,7 +38,7 @@ Japanisch für die nächste Reise. Mit Katze Mochi. 🐈
 | **Uhrzeit** | analoge und digitale Uhr, よじ, しちじ, くじ, いっぷん … |
 | **Datum & Wochentage** | ついたち, ふつか …, Monate, Wochentage, Jahreszahlen |
 | **Zeitangaben** | gestern, nächste Woche, letztes Jahr, jeden Morgen |
-| **Zählwörter** | 31 Zählwörter (まい, だい, ほん, ひき, こ, はい, さつ …): welches passt zum Bild, und wie liest man „3 Katzen“? |
+| **Zählwörter** | 31 Zählwörter (まい, だい, ほん, ひき, こ, はい, さつ …): welches passt zum Bild, wie liest man „3 Katzen“ – zur Auswahl oder zum Eintippen (さんびき) |
 | **Reise-Sätze** | 136 Situationen: Restaurant, Bahn, Hotel, Einkaufen, Notfall, Onsen … |
 | **Reise-Wortschatz** | 8 Themen mit rund 300 Wörtern für unterwegs |
 | **Schilder lesen** | 96 echte Schilder: 出口, 営業中, 禁煙, 指定席 … |
@@ -63,6 +64,12 @@ die Kana-Tabellen, alle Kanji, Schilder, Reise-Sätze und eine Partikel-Übersic
   Problemfälle**.
 - **„Ich bin bei Lektion …“** auf der Startseite begrenzt alle Übungen auf den
   Stoff bis zu deiner Lektion.
+- Neue Aufgaben kommen Lektion für Lektion, innerhalb einer Lektion aber in
+  zufälliger Reihenfolge. Zusammengehöriges (dasselbe Wort in beide Richtungen,
+  mehrere Formen desselben Verbs, dasselbe Zählwort) kommt nicht in derselben
+  Übung, damit man sich keine Reihenfolge merken kann.
+- Bei Vokabeln fragt die App beim Start, was du sehen möchtest: Japanisch,
+  Deutsch oder gemischt.
 
 ## Installation auf all-inkl
 

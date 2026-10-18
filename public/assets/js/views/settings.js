@@ -48,6 +48,7 @@ export function renderSettings(app, main) {
       <section class="card form">
         <h2>Anzeige</h2>
         <div class="option"><span class="option-label">Design</span>${segment('theme', { auto: 'Automatisch', light: 'Hell', dark: 'Dunkel' }, s.theme)}</div>
+        <div class="option"><span class="option-label">Schriftgröße</span>${segment('fontSize', { m: 'Normal', l: 'Groß', xl: 'Sehr groß' }, s.fontSize ?? 'm')}</div>
         ${switchRow('furigana', 'Furigana anzeigen', 'Hiragana über den Kanji. In den Kanji- und Schilder-Übungen bleiben sie aus.', s.furigana !== false)}
         ${switchRow('romaji', 'Romaji in Kana umwandeln', 'Beim Eintippen wird „taberu“ automatisch zu たべる.', s.romaji !== false)}
         ${switchRow('autoSpeak', 'Automatisch vorlesen', 'Japanisch wird mit der iPhone-Stimme vorgelesen.', s.autoSpeak === true)}
@@ -142,7 +143,7 @@ export function renderSettings(app, main) {
   main.addEventListener('click', async (event) => {
     const seg = event.target.closest('[data-seg]');
     if (seg) {
-      const value = seg.dataset.seg === 'theme' ? seg.dataset.value : Number(seg.dataset.value);
+      const value = ['theme', 'fontSize'].includes(seg.dataset.seg) ? seg.dataset.value : Number(seg.dataset.value);
       app.saveSettings({ [seg.dataset.seg]: value });
       Object.assign(s, app.settings);
       draw();

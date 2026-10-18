@@ -28,10 +28,12 @@ export const DEFAULT_SETTINGS = {
   autoSpeak: false,
   autoNext: true,
   theme: 'auto',
+  fontSize: 'm',
 };
 
 const SESSION_KEY = 'happyjapanese.session';
 const THEME_KEY = 'happyjapanese.theme';
+const SIZE_KEY = 'happyjapanese.size';
 
 const readLocal = (key) => {
   try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
@@ -160,8 +162,10 @@ function applySettings(settings) {
   prefs.furigana = settings.furigana !== false;
   const theme = settings.theme ?? 'auto';
   document.documentElement.dataset.theme = theme;
+  document.documentElement.dataset.size = settings.fontSize ?? 'm';
   document.documentElement.classList.toggle('no-furigana', settings.furigana === false);
   writeLocal(THEME_KEY, theme);
+  writeLocal(SIZE_KEY, settings.fontSize ?? 'm');
   const dark = theme === 'dark' || (theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#16181f' : '#f7f2ea');
 }
@@ -232,6 +236,8 @@ function renderSignedOut() {
 async function boot() {
   const theme = readLocal(THEME_KEY);
   if (theme) document.documentElement.dataset.theme = theme;
+  const size = readLocal(SIZE_KEY);
+  if (size) document.documentElement.dataset.size = size;
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch((err) => console.warn('Service worker', err));

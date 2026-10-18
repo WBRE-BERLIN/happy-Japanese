@@ -103,6 +103,13 @@ try {
       const start = (await page.$('[data-act="mix"]:not([disabled])')) ?? (await page.$('[data-act="anyway"]'));
       if (!start) throw new Error(`no way to practise ${id}`);
       await start.click();
+      await page.waitForSelector('.task, .sheet [data-dir]');
+      // Vocabulary-like areas ask what to see first.
+      const direction = await page.$('.sheet [data-dir]');
+      if (direction) {
+        await shot(`area-${id}-start`);
+        await direction.click();
+      }
       await page.waitForSelector('.task');
       await shot(`area-${id}`);
       for (let i = 0; i < 4; i++) if (!(await answerOne(i))) break;
@@ -120,6 +127,17 @@ try {
     await page.goto(`${base}/#/liste/verbs`);
     await page.click('details.list-item summary');
     await shot('page-list-verbs-open');
+  });
+
+  await step('large text', async () => {
+    await page.goto(`${base}/#/einstellungen`);
+    await page.click('[data-seg="fontSize"][data-value="xl"]');
+    await page.goto(`${base}/#/bereich/counters`);
+    await page.click('[data-act="mix"]');
+    await page.waitForSelector('.task');
+    await shot('large-task');
+    await page.goto(`${base}/#/einstellungen`);
+    await page.click('[data-seg="fontSize"][data-value="m"]');
   });
 
   await step('dark mode', async () => {
