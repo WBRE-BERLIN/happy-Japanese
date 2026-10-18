@@ -74,7 +74,7 @@ Beispiel: Subdomain `japan.kumogrid.de`, Ordner `/japan.kumogrid.de/`.
 2. Den Inhalt dieses Repositories nach `/japan.kumogrid.de/` hochladen (FTP)
    oder per SSH klonen:
    ```sh
-   cd ~/japan.kumogrid.de && git clone https://github.com/WBRE-BERLIN/happy-japanese.git .
+   cd ~/japan.kumogrid.de && git clone https://github.com/WBRE-BERLIN/happy-Japanese.git .
    ```
    Danach gibt es `/japan.kumogrid.de/public/index.html`, `/japan.kumogrid.de/src/`,
    `/japan.kumogrid.de/data/` usw.
