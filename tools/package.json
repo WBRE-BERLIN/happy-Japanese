@@ -1,0 +1,13 @@
+{
+  "name": "happy-japanese-tools",
+  "private": true,
+  "description": "Developer tools: icon rendering and the browser test. Not needed to run Happy Japanese.",
+  "type": "module",
+  "scripts": {
+    "icons": "node render-icons.mjs",
+    "e2e": "node e2e.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.56.1"
+  }
+}
