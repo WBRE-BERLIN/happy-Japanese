@@ -5,6 +5,7 @@ import { html, icon, toast } from '../lib/ui.js';
 import { AREAS, GROUPS, areaById, areaOptions } from '../areas/index.js';
 import { areaItems } from '../session.js';
 import { cat } from '../lib/cat.js';
+import { asksDirection, chooseAndStart } from './start.js';
 
 function areaStats(app, area, saved) {
   const items = areaItems(area, app.settings, saved);
@@ -61,6 +62,8 @@ export function renderArea(app, main, [id]) {
     const stats = areaStats(app, area, saved);
     const inMix = app.settings.mix.includes(id);
     const fresh = stats.counts[0];
+    // Direction and kind of task are asked when the practice starts.
+    const pageOptions = (area.options ?? []).filter((o) => !asksDirection(area) || !['dir', 'mode'].includes(o.key));
     main.innerHTML = html`
       <header class="page-head with-back">
         <a class="icon-btn" href="#/bereiche" aria-label="Zurück">${icon('back')}</a>
@@ -80,7 +83,7 @@ export function renderArea(app, main, [id]) {
         <p>Für deine Lektion (${app.settings.lesson}) gibt es hier noch nichts – das kommt ab Lektion ${stats.from}.</p>
         <button class="btn btn-ghost" data-act="anyway">Trotzdem üben (alle Lektionen)</button></section>`}
 
-      ${area.options?.length ? html`<section class="card options-card"><h2>Einstellungen</h2>${area.options.map((o) => optionControl(o, opts[o.key]))}</section>` : ''}
+      ${pageOptions.length ? html`<section class="card options-card"><h2>Einstellungen</h2>${pageOptions.map((o) => optionControl(o, opts[o.key]))}</section>` : ''}
 
       <div class="practice-buttons">
         <button class="btn btn-primary btn-hero" data-act="mix" ${stats.total ? '' : 'disabled'}>${icon('play')} <span>Üben<small>Fällige, neue und schwierige Aufgaben</small></span></button>
@@ -107,13 +110,23 @@ export function renderArea(app, main, [id]) {
       return;
     }
     const act = event.target.closest('[data-act]')?.dataset.act;
-    const sources = [{ area, saved }];
     const title = area.title;
-    if (act === 'mix') app.startPractice({ sources, title, explicit: true });
-    if (act === 'review') app.startPractice({ sources, focus: 'review', title });
-    if (act === 'weak') app.startPractice({ sources, focus: 'weak', title: `${title}: Schwierige` });
-    if (act === 'new') app.startPractice({ sources, focus: 'new', title: `${title}: Neue`, explicit: true });
-    if (act === 'anyway') app.startPractice({ sources, title, explicit: true, ignoreLesson: true });
+    const starts = {
+      mix: (opts) => app.startPractice({ sources: [{ area, saved: opts }], title, explicit: true }),
+      review: (opts) => app.startPractice({ sources: [{ area, saved: opts }], focus: 'review', title }),
+      weak: (opts) => app.startPractice({ sources: [{ area, saved: opts }], focus: 'weak', title: `${title}: Schwierige` }),
+      new: (opts) => app.startPractice({ sources: [{ area, saved: opts }], focus: 'new', title: `${title}: Neue`, explicit: true }),
+      anyway: (opts) => app.startPractice({ sources: [{ area, saved: opts }], title, explicit: true, ignoreLesson: true }),
+    };
+    if (!starts[act]) return;
+    if (asksDirection(area)) {
+      chooseAndStart(app, area, saved, (opts) => {
+        saved = opts;
+        starts[act](opts);
+      });
+    } else {
+      starts[act](saved);
+    }
   });
 
   main.addEventListener('change', (event) => {

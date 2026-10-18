@@ -85,3 +85,28 @@ test('romaji and answers', () => {
   assert.equal(autoFuri('お母さん', 'おかあさん'), 'お{母|かあ}さん');
   assert.equal(autoFuri('思い出します', 'おもいだします'), '{思|おも}い{出|だ}します');
 });
+
+test('both directions of a word are never in the same session', () => {
+  const area = areaById.vocab;
+  const plan = planSession({ sources: [{ area, saved: { dir: 'mix' } }], settings: { lesson: 2 }, states: new Map(), size: 30, focus: 'new', now });
+  const groups = plan.map((i) => i.group);
+  assert.equal(plan.length, 30);
+  assert.equal(new Set(groups).size, groups.length);
+});
+
+test('new items come in random order within a lesson', () => {
+  const area = areaById.dates;
+  const orders = new Set();
+  for (let i = 0; i < 8; i++) {
+    const plan = planSession({ sources: [{ area, saved: { mode: 'week' } }], settings: { lesson: 25 }, states: new Map(), size: 7, focus: 'new', now });
+    assert.equal(plan.length, 7);
+    orders.add(plan.map((item) => item.id).join());
+  }
+  assert.ok(orders.size > 1, 'weekdays are not always in the same order');
+});
+
+test('a counter session mixes counters instead of counting floors 1, 2, 3 …', () => {
+  const area = areaById.counters;
+  const plan = planSession({ sources: [{ area, saved: { mode: 'count' } }], settings: { lesson: 25 }, states: new Map(), size: 10, focus: 'new', now });
+  assert.equal(new Set(plan.map((i) => i.group)).size, 10, 'ten different counters');
+});

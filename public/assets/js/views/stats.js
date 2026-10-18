@@ -71,12 +71,12 @@ export function renderStats(app, main) {
   main.innerHTML = html`
     <header class="page-head"><h1>Fortschritt</h1></header>
     <section class="stat-tiles">
-      <div class="tile">${icon('flame')}<strong>${streak(attempts)}</strong><span>Tage in Folge</span></div>
-      <div class="tile">${icon('check')}<strong>${todayCount(attempts)}</strong><span>heute</span></div>
-      <div class="tile">${icon('target')}<strong>${acc === null ? '–' : `${Math.round(acc * 100)} %`}</strong><span>richtig (7 Tage)</span></div>
-      <div class="tile">${icon('clock')}<strong>${avgMs ? `${(avgMs / 1000).toFixed(1)} s` : '–'}</strong><span>pro Antwort (7 Tage)</span></div>
-      <div class="tile">${icon('sparkle')}<strong>${learned}</strong><span>gelernt</span></div>
-      <div class="tile">${icon('cards')}<strong>${attempts.length}</strong><span>Antworten gesamt</span></div>
+      <div class="stat-tile">${icon('flame')}<strong>${streak(attempts)}</strong><span>Tage in Folge</span></div>
+      <div class="stat-tile">${icon('check')}<strong>${todayCount(attempts)}</strong><span>heute</span></div>
+      <div class="stat-tile">${icon('target')}<strong>${acc === null ? '–' : `${Math.round(acc * 100)} %`}</strong><span>richtig (7 Tage)</span></div>
+      <div class="stat-tile">${icon('clock')}<strong>${avgMs ? `${(avgMs / 1000).toFixed(1)} s` : '–'}</strong><span>pro Antwort (7 Tage)</span></div>
+      <div class="stat-tile">${icon('sparkle')}<strong>${learned}</strong><span>gelernt</span></div>
+      <div class="stat-tile">${icon('cards')}<strong>${attempts.length}</strong><span>Antworten gesamt</span></div>
     </section>
 
     <section class="card">

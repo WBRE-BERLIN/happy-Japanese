@@ -88,7 +88,7 @@ export const kanji = {
     const level = ctx.opts.level ?? 'all';
     const modes = ctx.opts.mode && ctx.opts.mode !== 'mix' ? [ctx.opts.mode] : ['meaning', 'reading', 'write'];
     return KANJI.filter((e) => level === 'all' || e.level === level)
-      .flatMap((e) => modes.map((mode) => ({ id: `kj:${e.k}:${mode}`, tags: [`kanji:${e.level}`, `kmode:${mode}`], entry: e, mode })));
+      .flatMap((e) => modes.map((mode) => ({ id: `kj:${e.k}:${mode}`, group: `kj:${e.k}`, tags: [`kanji:${e.level}`, `kmode:${mode}`], entry: e, mode })));
   },
   task(item, ctx) {
     const e = item.entry;
@@ -134,7 +134,7 @@ export const signsArea = {
   ref: 'signs',
   items(ctx) {
     const modes = ctx.opts.mode === 'mix' ? ['meaning', 'reading'] : [ctx.opts.mode ?? 'meaning'];
-    return SIGNS.flatMap((s) => modes.map((mode) => ({ id: `sg:${hash(s.text)}:${mode}`, tags: [`sign:${mode}`], sign: s, mode })));
+    return SIGNS.flatMap((s) => modes.map((mode) => ({ id: `sg:${hash(s.text)}:${mode}`, group: `sg:${hash(s.text)}`, tags: [`sign:${mode}`], sign: s, mode })));
   },
   task(item, ctx) {
     const s = item.sign;

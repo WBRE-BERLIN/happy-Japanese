@@ -129,7 +129,7 @@ export const verbFormsArea = {
       .filter((f) => FORMS[f].lesson <= max(ctx) || set !== 'auto')
       .filter((f) => f !== from);
     return VERBS.filter((v) => v.lesson <= max(ctx)).flatMap((v) => keys.map((form) => ({
-      id: `vf:${v.dict}:${form}`, lesson: Math.max(v.lesson, FORMS[form].lesson), tags: [`L${v.lesson}`, ...verbTags(v, form)], verb: v, form,
+      id: `vf:${v.dict}:${form}`, group: `vf:${v.dict}`, lesson: Math.max(v.lesson, FORMS[form].lesson), tags: [`L${v.lesson}`, ...verbTags(v, form)], verb: v, form,
     })));
   },
   task(item, ctx) {
@@ -267,7 +267,7 @@ export const adjFormsArea = {
     const set = ctx.opts.forms ?? 'auto';
     const keys = set === 'auto' ? Object.keys(ADJ_FORMS).filter((f) => f !== 'p_pres' && ADJ_FORMS[f].lesson <= max(ctx)) : ADJ_SET_KEYS[set];
     return ADJS.filter((a) => adjLesson(a) <= max(ctx) && (ctx.opts.words !== 'book' || a.lesson > 0))
-      .flatMap((a) => keys.map((form) => ({ id: `af:${a.word}:${form}`, lesson: Math.max(adjLesson(a), ADJ_FORMS[form].lesson), tags: [...(a.lesson ? [`L${a.lesson}`] : []), ...adjTags(a, form)], adj: a, form })));
+      .flatMap((a) => keys.map((form) => ({ id: `af:${a.word}:${form}`, group: `af:${a.word}`, lesson: Math.max(adjLesson(a), ADJ_FORMS[form].lesson), tags: [...(a.lesson ? [`L${a.lesson}`] : []), ...adjTags(a, form)], adj: a, form })));
   },
   task(item) {
     const a = item.adj;
@@ -360,10 +360,10 @@ export const plainPolite = {
     if (max(ctx) < 20) return [];
     const dirs = ctx.opts.dir === 'mix' || !ctx.opts.dir ? ['toPlain', 'toPolite'] : [ctx.opts.dir];
     const verbItems = VERBS.flatMap((v) => Object.keys(PLAIN_OF).flatMap((form) => dirs.map((dir) => ({
-      id: `pp:${v.dict}:${form}:${dir}`, lesson: 20, tags: ['L20', `pp:${dir}`, ...verbTags(v, PLAIN_OF[form])], verb: v, form, dir,
+      id: `pp:${v.dict}:${form}:${dir}`, group: `pp:${v.dict}`, lesson: 20, tags: ['L20', `pp:${dir}`, ...verbTags(v, PLAIN_OF[form])], verb: v, form, dir,
     }))));
     const adjItems = ADJS.filter((a) => a.lesson > 0).flatMap((a) => Object.keys(ADJ_PLAIN_OF).flatMap((form) => dirs.map((dir) => ({
-      id: `pp:${a.word}:${form}:${dir}`, lesson: 20, tags: ['L20', `pp:${dir}`, ...adjTags(a, ADJ_PLAIN_OF[form])], adj: a, form, dir,
+      id: `pp:${a.word}:${form}:${dir}`, group: `pp:${a.word}`, lesson: 20, tags: ['L20', `pp:${dir}`, ...adjTags(a, ADJ_PLAIN_OF[form])], adj: a, form, dir,
     }))));
     return [...verbItems, ...adjItems];
   },
@@ -491,7 +491,7 @@ export const questionWords = {
   options: [{ key: 'dir', label: 'Richtung', choices: { mix: 'Gemischt', jd: 'Japanisch → Deutsch', dj: 'Deutsch → Japanisch' }, default: 'mix' }],
   items(ctx) {
     const dirs = ctx.opts.dir === 'mix' || !ctx.opts.dir ? ['jd', 'dj'] : [ctx.opts.dir];
-    return QUESTION_WORDS.flatMap((q) => dirs.map((dir) => ({ id: `qw:${furiKana(q[0])}:${dir}`, tags: ['gr:question', `dir:${dir}`], q, dir })));
+    return QUESTION_WORDS.flatMap((q) => dirs.map((dir) => ({ id: `qw:${furiKana(q[0])}:${dir}`, group: `qw:${furiKana(q[0])}`, tags: ['gr:question', `dir:${dir}`], q, dir })));
   },
   task(item, ctx) {
     const [word, de, example] = item.q;

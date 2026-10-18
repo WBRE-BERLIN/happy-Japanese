@@ -162,7 +162,7 @@ export const family = {
   options: [],
   ref: 'family',
   items() {
-    return FAMILY.flatMap((f) => ['own', 'other'].map((who) => ({ id: `fam:${furiKana(f[1])}:${who}`, lesson: 11, tags: [`fam:${who}`], f, who })));
+    return FAMILY.flatMap((f) => ['own', 'other'].map((who) => ({ id: `fam:${furiKana(f[1])}:${who}`, group: `fam:${furiKana(f[1])}`, lesson: 11, tags: [`fam:${who}`], f, who })));
   },
   task(item, ctx) {
     const r = ctx.rng;
