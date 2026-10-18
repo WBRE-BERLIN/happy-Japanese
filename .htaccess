@@ -1,0 +1,11 @@
+# Only used when the web root points at this folder instead of public/.
+# Better: point the web root (all-inkl: "Webspace") at the public/ folder.
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^(src|data|tests|tools|docs|node_modules)(/|$) - [F,L]
+  RewriteRule ^(config|config\.example)\.php$ - [F,L]
+  RewriteRule ^(README\.md|package\.json|\.git) - [F,L]
+  RewriteRule ^$ public/ [R=302,L]
+</IfModule>
