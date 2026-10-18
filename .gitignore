@@ -1,0 +1,6 @@
+/config.php
+/tools/node_modules/
+/tools/output/
+/node_modules/
+.DS_Store
+/tools/package-lock.json
