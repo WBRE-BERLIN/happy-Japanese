@@ -71,33 +71,6 @@ die Kana-Tabellen, alle Kanji, Schilder, Reise-Sätze und eine Partikel-Übersic
 - Bei Vokabeln fragt die App beim Start, was du sehen möchtest: Japanisch,
   Deutsch oder gemischt.
 
-## Installation auf all-inkl
-
-Beispiel: Subdomain `japan.kumogrid.de`, Ordner `/japan.kumogrid.de/`.
-
-1. Im KAS die **Webspace**-Adresse der Subdomain auf `/japan.kumogrid.de/public/`
-   setzen, PHP-Version **8.5**, **SSL** einschalten. Damit ist nur `public/` aus
-   dem Netz erreichbar; die Datenbank in `data/` nicht.
-2. Den Inhalt dieses Repositories nach `/japan.kumogrid.de/` hochladen (FTP)
-   oder per SSH klonen:
-   ```sh
-   cd ~/japan.kumogrid.de && git clone https://github.com/WBRE-BERLIN/happy-Japanese.git .
-   ```
-   Danach gibt es `/japan.kumogrid.de/public/index.html`, `/japan.kumogrid.de/src/`,
-   `/japan.kumogrid.de/data/` usw.
-3. `config.example.php` nach `config.php` kopieren und einen `cron_token`
-   eintragen (für die Erinnerungen), z. B. erzeugt mit
-   `php -r "echo bin2hex(random_bytes(16));"`. Wer nicht möchte, dass sich
-   jeder ein Konto anlegen kann, setzt einen `registration_code`.
-4. **Cronjob für die Erinnerungen:** KAS → Tools → Cronjobs → neuer Cronjob,
-   Adresse `https://japan.kumogrid.de/cron.php?token=DEIN_TOKEN`, alle 15
-   Minuten (öfter geht auch). Erinnerungen kommen dann zur eingestellten
-   Uhrzeit oder bis 15 Minuten danach.
-5. `https://japan.kumogrid.de` öffnen und ein Konto anlegen.
-
-Voraussetzungen: PHP 8.3 oder neuer (8.5 empfohlen) mit `pdo_sqlite`, `openssl`,
-`curl` und `mbstring` – bei all-inkl Standard. `data/` muss für PHP schreibbar sein.
-
 ## Auf dem iPhone
 
 1. `https://japan.kumogrid.de` in **Safari** öffnen.
