@@ -209,7 +209,9 @@ export default [
   // Lektion 23
   { s: 'この{橋|はし}＿{渡|わた}る＿、{右|みぎ}に{郵便局|ゆうびんきょく}があります。', a: ['を', 'と'], de: 'Wenn Sie diese Brücke überqueren, ist rechts die Post.', why: 'を: was man überquert; と: „wenn …, dann“ (feste Folge).', l: 23 },
   { s: '{道|みち}＿{渡|わた}るとき、{車|くるま}に{気|き}をつけてください。', a: ['を'], de: 'Achte auf die Autos, wenn du die Straße überquerst.', why: '渡ります: Die Straße, die man überquert, steht mit を.', l: 23 },
-  { s: '{分|わ}からないとき、{先生|せんせい}＿{聞|き}きます。', a: ['に'], de: 'Wenn ich etwas nicht verstehe, frage ich die Lehrerin.', why: '聞きます (fragen): Die gefragte Person steht mit に – nicht mit を.', l: 23 },
+  { s: 'トモヒロ{先生|せんせい}＿{日本語|にほんご}を{習|なら}っています。', a: ['に/から'], de: 'Ich lerne Japanisch bei Tomohiro-sensei.', why: '習います: Die Person, bei der man lernt, steht mit に (auch から).', l: 15 },
+  { s: 'トモヒロ{先生|せんせい}＿{授業|じゅぎょう}はいつも{楽|たの}しいです。', a: ['の'], de: 'Der Unterricht bei Tomohiro-sensei macht immer Spaß.', why: 'の verbindet zwei Nomen: der Unterricht von Tomohiro-sensei.', l: 8 },
+  { s: '{分|わ}からないとき、トモヒロ{先生|せんせい}＿{聞|き}きます。', a: ['に'], de: 'Wenn ich etwas nicht verstehe, frage ich Tomohiro-sensei.', why: '聞きます (fragen): Die gefragte Person steht mit に – nicht mit を.', l: 23 },
   { s: '{子|こ}ども＿とき、よく{川|かわ}で{泳|およ}ぎました。', a: ['の'], de: 'Als Kind bin ich oft im Fluss geschwommen.', why: 'Nomen＋の＋とき = „als …“.', l: 23 },
   { s: '{妻|つま}＿{病気|びょうき}のとき、{私|わたし}が{料理|りょうり}を{作|つく}ります。', a: ['が'], de: 'Wenn meine Frau krank ist, koche ich.', why: 'Im とき-Satz steht das Subjekt mit が; は gehört zum Hauptsatz.', l: 23 },
   { s: 'この{道|みち}をまっすぐ{行|い}く＿、{左|ひだり}に{公園|こうえん}があります。', a: ['と'], de: 'Wenn Sie diese Straße geradeaus gehen, ist links ein Park.', why: 'と nach der Wörterbuchform: „wenn …, dann“ – typisch für Wegbeschreibungen.', l: 23 },

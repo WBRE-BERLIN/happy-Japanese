@@ -1,7 +1,7 @@
 /* Settings: learning, display, reminders (push), account. */
 import { api, post, errorText } from '../lib/api.js';
 import { cat } from '../lib/cat.js';
-import { closeSheet, confirmSheet, html, icon, sheet, toast } from '../lib/ui.js';
+import { closeSheet, confirmSheet, html, icon, jp, sheet, toast } from '../lib/ui.js';
 import { AREAS, GROUPS } from '../areas/index.js';
 
 const DAYS = [['1', 'Mo'], ['2', 'Di'], ['3', 'Mi'], ['4', 'Do'], ['5', 'Fr'], ['6', 'Sa'], ['0', 'So']];
@@ -76,7 +76,7 @@ export function renderSettings(app, main) {
 
       <section class="about">
         ${cat('sleep', { size: 90 })}
-        <p class="muted small">Happy Japanese · Begleiter zu Minna no Nihongo I<br>Läuft offline · Furigana immer dabei · にゃん</p>
+        <p class="muted small">Happy Japanese · Begleiter zu Minna no Nihongo I<br>für den Unterricht bei unserem Lehrer Tomohiro-sensei (${jp('トモヒロ{先生|せんせい}')})<br>Läuft offline · Furigana immer dabei · にゃん</p>
       </section>`.text;
   };
 
