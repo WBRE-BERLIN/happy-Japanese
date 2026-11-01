@@ -56,7 +56,7 @@ export default [
   { s: 'マリアさんは{髪|かみ}が＿、{目|め}が{大|おお}きいです。', a: '長い', f: 'te', de: 'Maria hat lange Haare und große Augen.', l: 16 },
   { s: 'この{町|まち}は＿きれいです。', a: '静か', f: 'te', de: 'Diese Stadt ist ruhig und schön.', l: 16 },
   { s: '{田中|たなか}さんは＿{親切|しんせつ}です。', a: 'ハンサム', f: 'te', de: 'Herr Tanaka sieht gut aus und ist freundlich.', l: 16 },
-  { s: '{私|わたし}の{先生|せんせい}は＿おもしろいです。', a: '元気', f: 'te', de: 'Meine Lehrerin ist munter und lustig.', l: 16 },
+  { s: 'トモヒロ{先生|せんせい}は＿おもしろいです。', a: '元気', f: 'te', de: 'Tomohiro-sensei ist munter und lustig.', l: 16 },
 
   // als Adverb (L19)
   { s: '{明日|あした}は{試験|しけん}ですから、{今晩|こんばん}は＿{寝|ね}ます。', a: '早い', f: 'adv', de: 'Morgen habe ich eine Prüfung, deshalb gehe ich heute früh ins Bett.', l: 19 },
@@ -66,7 +66,7 @@ export default [
   { s: '{髪|かみ}を＿{切|き}ってください。', a: '短い', f: 'adv', de: 'Schneiden Sie mir die Haare bitte kurz.', l: 19 },
   { s: '{毎朝|まいあさ}、{部屋|へや}を＿{掃除|そうじ}します。', a: 'きれい', f: 'adv', de: 'Jeden Morgen mache ich mein Zimmer gründlich sauber.', l: 19 },
   { s: '{図書館|としょかん}では＿してください。', a: '静か', f: 'adv', de: 'Seien Sie in der Bibliothek bitte leise.', l: 19 },
-  { s: '{先生|せんせい}は{文法|ぶんぽう}を＿{説明|せつめい}してくれました。', a: '丁寧', f: 'adv', de: 'Die Lehrerin hat uns die Grammatik sorgfältig erklärt.', l: 24 },
+  { s: 'トモヒロ{先生|せんせい}は{文法|ぶんぽう}を＿{説明|せつめい}してくれました。', a: '丁寧', f: 'adv', de: 'Tomohiro-sensei hat uns die Grammatik sorgfältig erklärt.', l: 24 },
 
   // 〜なります (L19)
   { s: '{明日|あした}から＿よ。', a: '暖かい', f: 'naru', de: 'Ab morgen wird es warm.', l: 19 },

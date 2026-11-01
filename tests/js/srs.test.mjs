@@ -70,8 +70,9 @@ test('sessions put due items first and respect the new-item limit', () => {
   const plan = planSession({ sources: [{ area, saved: { dir: 'jd' } }], settings, states, size: 10, newLeft: 4, now });
   assert.ok(plan.some((i) => i.id === items[5].id), 'due item included');
   assert.equal(plan.filter((i) => !states.has(i.id)).length, 4, 'four new items');
-  const review = planSession({ sources: [{ area, saved: { dir: 'jd' } }], settings, states, size: 10, focus: 'review', now });
-  assert.equal(review[0].id, items[5].id);
+  // With room for one item, the due one is chosen (the order inside a session is random).
+  const review = planSession({ sources: [{ area, saved: { dir: 'jd' } }], settings, states, size: 1, focus: 'review', now });
+  assert.deepEqual(review.map((i) => i.id), [items[5].id]);
 });
 
 test('romaji and answers', () => {

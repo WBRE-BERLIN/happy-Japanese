@@ -14,7 +14,7 @@ export function renderAuth(app, main) {
         <div class="auth-hero">
           ${cat('wave', { size: 132 })}
           <h1 class="brand">Happy Japanese <span class="brand-jp" lang="ja">にほんご</span></h1>
-          <p class="muted">Dein Begleiter zu Minna no Nihongo – Vokabeln, Grammatik, Zahlen und alles für die nächste Japanreise.</p>
+          <p class="muted">Dein Begleiter zu Minna no Nihongo und zum Unterricht bei Tomohiro-sensei – Vokabeln, Grammatik, Zahlen und alles für die nächste Japanreise.</p>
         </div>
         ${app.auth?.offline ? html`<p class="notice">Keine Verbindung zum Server. Zum ersten Anmelden brauchst du Internet.</p>` : ''}
         <div class="segmented auth-switch" role="tablist">

@@ -170,7 +170,8 @@ Push-Dienste von Apple, Google, Mozilla und Microsoft).
 
 ## Hinweis
 
-Happy Japanese ist ein privates Lernprojekt. Es folgt dem Aufbau von
+Happy Japanese ist ein privates Lernprojekt für den Japanischkurs bei unserem
+Lehrer Tomohiro-sensei (トモヒロ先生). Es folgt dem Aufbau von
 „Minna no Nihongo“, ist aber nicht mit dem Verlag (3A Corporation) verbunden;
 alle Sätze, Erklärungen und Übersetzungen sind eigene Texte. Kein Ersatz für
 den Unterricht – aber ein guter Grund, jeden Tag fünf Minuten zu üben. がんばって！

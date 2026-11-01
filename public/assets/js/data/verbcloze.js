@@ -206,4 +206,5 @@ export default [
   { s: 'いくら＿、{兄|あに}にテニスで{勝|か}つことができません。', v: '練習する', f: 'temo', de: 'Egal wie viel ich übe, ich kann meinen älteren Bruder im Tennis nicht schlagen.', l: 25 },
   { s: '{地図|ちず}を＿、{道|みち}が{分|わ}かりませんでした。', v: '見る', f: 'temo', de: 'Obwohl ich auf die Karte geschaut habe, habe ich den Weg nicht gefunden.', l: 25 },
   { s: '{何回|なんかい}ボタンを＿、{機械|きかい}が{動|うご}きません。', v: '押す', f: 'temo', de: 'Egal wie oft ich den Knopf drücke, die Maschine läuft nicht.', l: 25 },
+  { s: 'トモヒロ{先生|せんせい}、すみません。もう{一度|いちど}＿ください。', v: '言う', f: 'te', de: 'Tomohiro-sensei, entschuldigen Sie, sagen Sie es bitte noch einmal.', l: 14 },
 ];

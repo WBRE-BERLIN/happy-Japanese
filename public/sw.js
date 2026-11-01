@@ -1,7 +1,7 @@
 /* Happy Japanese service worker: the whole app is cached, so it opens and works offline.
    VERSION and SHELL are written by tools/build-sw.mjs (run it after changing files in public/). */
 
-const VERSION = '8f7d4fdf99b5';
+const VERSION = 'aae7e3d69fcc';
 const SHELL = [
   './',
   'index.html',

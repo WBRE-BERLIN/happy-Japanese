@@ -71,7 +71,7 @@ export default [
   // giving
   { q: 'Du hast Herrn Kimura zum Geburtstag Blumen geschenkt.', s: '{私|わたし}は{木村|きむら}さんに{花|はな}を＿。', o: ['あげました', 'もらいました', 'くれました', '{貸|か}しました'], de: 'Ich habe Herrn Kimura Blumen geschenkt.', why: 'Ich gebe jemandem etwas: あげます. くれます nur, wenn ich etwas bekomme.', l: 7, t: 'giving' },
   { q: 'Dein Vater hat dir eine Uhr geschenkt.', s: '{私|わたし}は{父|ちち}に{時計|とけい}を＿。', o: ['もらいました', 'あげました', 'くれました', 'もらいます'], de: 'Ich habe von meinem Vater eine Uhr bekommen.', why: 'わたしは + Person に + もらいます = von jemandem bekommen.', l: 7, t: 'giving' },
-  { s: '{私|わたし}は{先生|せんせい}＿{辞書|じしょ}をもらいました。', o: ['に', 'が', 'へ', 'を'], de: 'Ich habe von der Lehrerin ein Wörterbuch bekommen.', why: 'Bei もらいます steht der Geber mit に (auch から).', l: 7, t: 'giving' },
+  { s: '{私|わたし}はトモヒロ{先生|せんせい}＿{辞書|じしょ}をもらいました。', o: ['に', 'が', 'へ', 'を'], de: 'Ich habe von Tomohiro-sensei ein Wörterbuch bekommen.', why: 'Bei もらいます steht der Geber mit に (auch から).', l: 7, t: 'giving' },
   { q: 'Du fragst Frau Lee, was sie zum Geburtstag bekommen hat.', s: 'イーさんは{誕生日|たんじょうび}に{何|なに}を＿か。', o: ['もらいました', 'あげました', 'くれました', 'もらいます'], de: 'Was haben Sie zum Geburtstag bekommen, Frau Lee?', why: 'Frau Lee ist die Empfängerin, also もらいました.', l: 7, t: 'giving' },
   { q: 'Herr Yamada war dein Japanischlehrer.', s: '{私|わたし}は{山田|やまだ}さんに{日本語|にほんご}を＿。', o: ['{習|なら}いました', '{教|おし}えました', 'もらいました', 'くれました'], de: 'Ich habe bei Herrn Yamada Japanisch gelernt.', why: 'Von jemandem lernen: Person に ならいます. おしえます = unterrichten.', l: 7, t: 'giving' },
   { s: '{私|わたし}は{図書館|としょかん}で{本|ほん}を＿。', o: ['{借|か}りました', '{貸|か}しました', 'あげました', 'くれました'], de: 'Ich habe in der Bibliothek ein Buch ausgeliehen.', why: 'かります = (sich) ausleihen, かします = verleihen.', l: 7, t: 'giving' },
