@@ -9,3 +9,4 @@ Learning companion PWA for Minna no Nihongo I (German UI). Read `README.md` firs
 - After changing anything in `public/`: `node tools/build-sw.mjs` (service worker file list and version).
 - Before committing: `node tools/check-content.mjs`, `npm test`, `php tests/run.php`; for UI changes also `cd tools && npm run e2e` (set `CHROMIUM_PATH`).
 - Never commit `config.php` or anything in `data/`.
+- Whatever is merged into `main` goes live within one cron interval: the server installs it by itself (`src/Updater.php`). Only merge green, tested changes.

@@ -17,6 +17,10 @@ return [
     // Default: the address of the site, e.g. https://japan.kumogrid.de
     // 'push_contact' => '',
 
+    // The cron job installs new versions from GitHub (every call to cron.php).
+    // A git clone is updated with git, otherwise from GitHub's ZIP. data/ and config.php stay.
+    // 'auto_update' => true,
+
     // Where the database is stored. Must be writable by PHP and not reachable from the web.
     // 'data_dir' => __DIR__ . '/data',
 ];

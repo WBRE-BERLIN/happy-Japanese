@@ -18,6 +18,9 @@ final readonly class Config
         public string $cronToken,
         public string $pushContact,
         public array $pushHosts,
+        public bool $autoUpdate = false,
+        public string $updateRepo = 'WBRE-BERLIN/happy-Japanese',
+        public string $updateBranch = 'main',
     ) {
     }
 
@@ -43,6 +46,10 @@ final readonly class Config
                 'push_hosts',
                 'web.push.apple.com,fcm.googleapis.com,updates.push.services.mozilla.com,notify.windows.com,push.services.mozilla.com',
             ))))),
+            // The cron job installs new versions from GitHub unless 'auto_update' => false.
+            autoUpdate: !in_array(strtolower($get('auto_update', '1')), ['', '0', 'false', 'off', 'no'], true),
+            updateRepo: $get('update_repo', 'WBRE-BERLIN/happy-Japanese'),
+            updateBranch: $get('update_branch', 'main'),
         );
     }
 }

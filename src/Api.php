@@ -121,6 +121,7 @@ final class Api
             'user' => $user === null ? null : ['id' => $user['id'], 'username' => $user['username'], 'display_name' => $user['display_name']],
             'registration' => $this->app->config->registration,
             'vapid_public_key' => $user === null ? null : $this->app->vapid->publicKey(),
+            'version' => Updater::version(dirname(__DIR__), $this->app->config->dataDir),
         ];
     }
 
