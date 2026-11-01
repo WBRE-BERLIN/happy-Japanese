@@ -107,9 +107,27 @@ gilt pro Aufgabe der neueste Stand.
 
 ## Aktualisieren
 
-Alles außer `data/` und `config.php` ersetzen (bzw. `git pull`). Die Datenbank
-passt sich beim nächsten Aufruf selbst an. Installierte Apps laden die neue
-Version beim nächsten Start.
+**Automatisch:** Bei jedem Aufruf von `cron.php` (dem Cronjob für die
+Erinnerungen) schaut der Server auf GitHub nach einer neuen Version im Branch
+`main` und installiert sie. Was in `main` landet, ist also nach spätestens einem
+Cron-Intervall live.
+
+- Ist die Installation ein Git-Klon, holt der Server die Änderungen mit `git`
+  (nur „fast-forward“: wurde auf dem Server selbst etwas geändert, bricht das
+  Update ab, statt es zu überschreiben).
+- Kann PHP kein `git` ausführen oder gibt es keinen Klon, lädt er das ZIP der
+  neuesten Version von GitHub und ersetzt die Dateien.
+- `data/` und `config.php` werden nie angefasst. Die Datenbank passt sich beim
+  nächsten Aufruf selbst an; installierte Apps laden die neue Version beim
+  nächsten Start.
+- Die installierte Version steht in der App unter Einstellungen (ganz unten),
+  jedes Update in `data/update.log`.
+- Abschalten: `'auto_update' => false` in `config.php`.
+
+**Von Hand:** `git pull` im Ordner der App. Hat der Server zwischendurch per ZIP
+aktualisiert und Git meldet geänderte Dateien, bringt
+`git fetch && git reset --hard origin/main` den Klon auf denselben Stand
+(`data/` und `config.php` bleiben, sie gehören nicht zum Repository).
 
 ## Sicherung
 
@@ -164,7 +182,7 @@ Header `X-Happy: 1` (Schutz gegen Cross-Site-Requests).
 | `GET reminders` / `POST reminders` `{enabled, time, days, tz, only_idle}` | Erinnerungen |
 | `POST push/subscribe` `{subscription}` / `POST push/unsubscribe` / `POST push/test` | Geräte für Mitteilungen |
 
-`cron.php?token=…` verschickt die fälligen Erinnerungen (Web Push nach RFC 8291
+`cron.php?token=…` installiert neue Versionen (siehe „Aktualisieren“) und verschickt die fälligen Erinnerungen (Web Push nach RFC 8291
 und VAPID, ohne Bibliotheken; Nachrichten gehen nur an die bekannten
 Push-Dienste von Apple, Google, Mozilla und Microsoft).
 

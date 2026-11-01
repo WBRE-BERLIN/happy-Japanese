@@ -19,6 +19,9 @@ use HappyJapanese\Push\Base64Url;
 use HappyJapanese\Push\EcKeys;
 use HappyJapanese\Push\Transport;
 use HappyJapanese\Push\WebPush;
+use HappyJapanese\Update\GitHub;
+use HappyJapanese\Update\Source;
+use HappyJapanese\Updater;
 
 final class Tests
 {
@@ -285,6 +288,135 @@ $t->run('reminders: time, days, once a day, idle check, gone subscriptions', fun
     same(0, $app->reminders->get($id)['devices'], 'gone subscription deleted');
 });
 
+/* ---------- updates ---------- */
+
+/** Serves a prepared ZIP instead of GitHub. */
+final class FakeSource implements Source
+{
+    public int $downloads = 0;
+
+    /** @param array<string, string> $files */
+    public function __construct(public string $sha, private readonly array $files)
+    {
+    }
+
+    public function latestSha(string $repo, string $branch): string
+    {
+        return $this->sha;
+    }
+
+    public function download(string $repo, string $sha, string $target): void
+    {
+        $this->downloads++;
+        $zip = new ZipArchive();
+        $zip->open($target, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+        foreach ($this->files as $path => $content) {
+            $zip->addFromString("happy-Japanese-{$sha}/{$path}", $content);
+        }
+        $zip->close();
+    }
+}
+
+function writeFiles(string $root, array $files): void
+{
+    foreach ($files as $path => $content) {
+        @mkdir(dirname("{$root}/{$path}"), 0777, true);
+        file_put_contents("{$root}/{$path}", $content);
+    }
+}
+
+$t->run('update from the ZIP keeps data/ and config.php and removes old files', function (): void {
+    $root = tempDir('zip-root');
+    writeFiles($root, [
+        'config.php' => '<?php return ["cron_token" => "secret"];',
+        'data/happyjapanese.sqlite' => 'database',
+        'public/index.html' => 'old page',
+        'src/Old.php' => 'old class',
+        'data/installed.json' => json_encode(['sha' => str_repeat('a', 40), 'files' => ['public/index.html', 'src/Old.php']]),
+    ]);
+    $source = new FakeSource(str_repeat('b', 40), [
+        'public/index.html' => 'new page',
+        'src/bootstrap.php' => 'bootstrap',
+        'config.php' => 'from GitHub',
+        'data/evil.sqlite' => 'never',
+    ]);
+    $updater = new Updater($root, "{$root}/data", 'WBRE-BERLIN/happy-Japanese', 'main', $source, null);
+    $result = $updater->run();
+    same('updated', $result['status'], json_encode($result));
+    same('zip', $result['method']);
+    same('new page', file_get_contents("{$root}/public/index.html"));
+    same('bootstrap', file_get_contents("{$root}/src/bootstrap.php"));
+    same('<?php return ["cron_token" => "secret"];', file_get_contents("{$root}/config.php"), 'config.php untouched');
+    same('database', file_get_contents("{$root}/data/happyjapanese.sqlite"), 'data untouched');
+    ok(!is_file("{$root}/data/evil.sqlite"), 'nothing written into data/');
+    ok(!is_file("{$root}/src/Old.php"), 'file of the old version removed');
+    ok(!is_file("{$root}/data/update.zip"), 'download cleaned up');
+    same('bbbbbbb', Updater::version($root, "{$root}/data"));
+    same('current', $updater->run()['status'], 'second run has nothing to do');
+    same(1, $source->downloads);
+    ok(str_contains((string) file_get_contents("{$root}/data/update.log"), '"updated"'), 'logged');
+});
+
+$t->run('update refuses a download with paths outside the app', function (): void {
+    $root = tempDir('zip-evil');
+    writeFiles($root, ['public/index.html' => 'old page', 'data/.keep' => '']);
+    $source = new FakeSource(str_repeat('c', 40), ['public/index.html' => 'x', 'src/bootstrap.php' => 'x', '../../escape.txt' => 'x']);
+    $result = (new Updater($root, "{$root}/data", 'r/r', 'main', $source, null))->run();
+    same('error', $result['status']);
+    same('old page', file_get_contents("{$root}/public/index.html"), 'nothing changed');
+    ok(!is_file(dirname($root) . '/escape.txt'), 'nothing escaped');
+});
+
+$t->run('update of a git clone fast-forwards it', function (): void {
+    $git = static function (string $dir, string ...$args): string {
+        $out = [];
+        exec('git -C ' . escapeshellarg($dir) . ' -c user.name=Test -c user.email=test@example.com ' . implode(' ', array_map('escapeshellarg', $args)) . ' 2>&1', $out, $code);
+        if ($code !== 0) {
+            throw new RuntimeException(implode("\n", $out));
+        }
+
+        return trim(implode("\n", $out));
+    };
+    $base = tempDir('git');
+    exec('git init --quiet --bare -b main ' . escapeshellarg("{$base}/origin.git"));
+    exec('git clone --quiet ' . escapeshellarg("{$base}/origin.git") . ' ' . escapeshellarg("{$base}/dev") . ' 2>&1');
+    writeFiles("{$base}/dev", ['public/index.html' => 'v1', '.gitignore' => "/config.php\n/data/\n"]);
+    $git("{$base}/dev", 'add', '-A');
+    $git("{$base}/dev", 'commit', '--quiet', '-m', 'v1');
+    $git("{$base}/dev", 'push', '--quiet', 'origin', 'HEAD:main');
+    exec('git clone --quiet ' . escapeshellarg("{$base}/origin.git") . ' ' . escapeshellarg("{$base}/server") . ' 2>&1');
+    writeFiles("{$base}/server", ['config.php' => 'secret', 'data/db' => 'database']);
+
+    $updater = new Updater("{$base}/server", "{$base}/server/data", 'r/r', 'main', new FakeSource(str_repeat('d', 40), []), Updater::findGit());
+    same('current', $updater->run()['status']);
+
+    writeFiles("{$base}/dev", ['public/index.html' => 'v2']);
+    $git("{$base}/dev", 'commit', '--quiet', '-am', 'v2');
+    $git("{$base}/dev", 'push', '--quiet', 'origin', 'HEAD:main');
+    $result = $updater->run();
+    same('updated', $result['status'], json_encode($result));
+    same('git', $result['method']);
+    same('v2', file_get_contents("{$base}/server/public/index.html"));
+    same('secret', file_get_contents("{$base}/server/config.php"));
+    same(substr($git("{$base}/dev", 'rev-parse', 'HEAD'), 0, 7), Updater::version("{$base}/server", "{$base}/server/data"));
+
+    // A changed file on the server stops the update instead of being overwritten.
+    writeFiles("{$base}/server", ['public/index.html' => 'edited on the server']);
+    writeFiles("{$base}/dev", ['public/index.html' => 'v3']);
+    $git("{$base}/dev", 'commit', '--quiet', '-am', 'v3');
+    $git("{$base}/dev", 'push', '--quiet', 'origin', 'HEAD:main');
+    same('error', $updater->run()['status']);
+    same('edited on the server', file_get_contents("{$base}/server/public/index.html"));
+});
+
+$t->run('the branch head is read from the git advertisement', function (): void {
+    $sha = str_repeat('e', 40);
+    $other = str_repeat('f', 40);
+    $body = "001e# service=git-upload-pack\n0000015b{$other} HEAD\0multi_ack side-band-64k\n003f{$other} refs/heads/claude/x\n003d{$sha} refs/heads/main\n0000";
+    same($sha, GitHub::shaFromRefs($body, 'main'));
+    same(null, GitHub::shaFromRefs($body, 'mai'));
+});
+
 /* ---------- API through a real server ---------- */
 
 $data = tempDir('api');
@@ -296,6 +428,7 @@ $env = [
     'HAPPYJ_CRON_TOKEN' => 'cron-secret',
     'HAPPYJ_PUSH_HOSTS' => '127.0.0.1,*http',
     'HAPPYJ_PUSH_CONTACT' => 'mailto:test@example.com',
+    'HAPPYJ_AUTO_UPDATE' => '0',
 ];
 $server = startServer(__DIR__ . '/../public', $port, $env);
 $pushServer = startServer(__DIR__, $pushPort, ['FAKE_PUSH_DIR' => $pushDir], __DIR__ . '/fake-push.php');

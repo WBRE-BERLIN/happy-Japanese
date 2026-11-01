@@ -36,4 +36,9 @@ final class App
         $this->push = new WebPush($this->vapid, $transport ?? new CurlTransport(), $config->pushHosts);
         $this->reminders = new Reminders($this->db, $this->progress, $this->push, $config);
     }
+
+    public function updater(?Update\Source $source = null): Updater
+    {
+        return new Updater(dirname(__DIR__), $this->config->dataDir, $this->config->updateRepo, $this->config->updateBranch, $source ?? new Update\GitHub());
+    }
 }

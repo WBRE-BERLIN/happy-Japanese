@@ -76,7 +76,7 @@ export function renderSettings(app, main) {
 
       <section class="about">
         ${cat('sleep', { size: 90 })}
-        <p class="muted small">Happy Japanese · Begleiter zu Minna no Nihongo I<br>für den Unterricht bei unserem Lehrer Tomohiro-sensei (${jp('トモヒロ{先生|せんせい}')})<br>Läuft offline · Furigana immer dabei · にゃん</p>
+        <p class="muted small">Happy Japanese · Begleiter zu Minna no Nihongo I<br>für den Unterricht bei unserem Lehrer Tomohiro-sensei (${jp('トモヒロ{先生|せんせい}')})<br>Läuft offline · Furigana immer dabei · にゃん${app.auth?.version ? html`<br>Version ${app.auth.version}` : ''}</p>
       </section>`.text;
   };
 
