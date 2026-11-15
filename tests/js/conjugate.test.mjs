@@ -72,3 +72,17 @@ test('adjectives', () => {
   assert.equal(adjForm(adj('きれい'), 'p_past').written, 'きれいでした');
   for (const a of adjectives) for (const key of Object.keys(ADJ_FORMS)) assert.ok(adjForm(a, key).reading, `${a[0]} ${key}`);
 });
+
+test('minna II forms: ながら, ば, なければ', () => {
+  assert.deepEqual(forms('書く', ['nagara', 'ba', 'naba']), ['書きながら', '書けば', '書かなければ']);
+  assert.deepEqual(forms('待つ', ['ba']), ['待てば']);
+  assert.deepEqual(forms('買う', ['ba', 'naba']), ['買えば', '買わなければ']);
+  assert.deepEqual(forms('食べる', ['nagara', 'ba', 'naba']), ['食べながら', '食べれば', '食べなければ']);
+  assert.deepEqual(forms('する', ['ba', 'naba']), ['すれば', 'しなければ']);
+  assert.deepEqual(forms('ある', ['ba', 'naba']), ['あれば', 'なければ']);
+  assert.equal(verbForm(verb('来る'), 'ba').furi, '{来|く}れば');
+  assert.equal(verbForm(verb('来る'), 'naba').furi, '{来|こ}なければ');
+  assert.deepEqual(adjForm(adj('高い'), 'ba').written, '高ければ');
+  assert.deepEqual(adjForm(adj('いい'), 'ba').written, 'よければ');
+  assert.deepEqual(adjForm(adj('静か'), 'ba').written, '静かなら');
+});

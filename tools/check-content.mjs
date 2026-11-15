@@ -1,7 +1,7 @@
 // Checks the learning content in public/assets/js/data/ (formats: docs/content.md).
 // Usage: node tools/check-content.mjs [--warnings]
 import { existsSync } from 'node:fs';
-import { autoFuri, furiKana, hasKanji, KANJI } from '../public/assets/js/lib/furi.js';
+import { autoFuri, furiKana, furiPlain, hasKanji, KANJI } from '../public/assets/js/lib/furi.js';
 
 const DATA = new URL('../public/assets/js/data/', import.meta.url);
 const showWarnings = process.argv.includes('--warnings');
@@ -230,6 +230,51 @@ if (phrases) {
     });
   });
   counts.phrases = phrases.length;
+}
+
+/* Topic files (relative clauses, wenn/als, während): choice, form and build tasks. */
+const TOPIC_FILES = {
+  'relative.js': ['modify'],
+  'conditional.js': ['toki', 'to-cond', 'tara', 'ba', 'nara', 'temo'],
+  'while.js': ['nagara', 'aida', 'aidani', 'chuu', 'toki'],
+};
+for (const [file, topics] of Object.entries(TOPIC_FILES)) {
+  const data = await load(file);
+  if (!data) continue;
+  const known = new Set((verbs ?? []).map(([dict]) => dict));
+  const lessonOk = (l) => l >= 1 && l <= 50;
+  (data.choice ?? []).forEach((item, i) => {
+    const where = `${file} choice #${i + 1}`;
+    checkFuri(item.s, where);
+    if (blanks(item.s) !== 1 && !item.q) errors.push(`${where}: needs one blank or a question q`);
+    if (!Array.isArray(item.o) || item.o.length < 3) errors.push(`${where}: needs at least 3 options`);
+    if (new Set(item.o).size !== item.o?.length) errors.push(`${where}: options repeat`);
+    if (new Set(item.o?.map(furiPlain)).size !== item.o?.length) errors.push(`${where}: two options look the same without furigana`);
+    item.o?.forEach((option, j) => checkFuri(option, `${where} option ${j + 1}`));
+    if (!item.de || !item.why) errors.push(`${where}: de and why are needed`);
+    if (!topics.includes(item.t)) errors.push(`${where}: topic ${item.t} (allowed: ${topics.join(', ')})`);
+    if (!lessonOk(item.l)) errors.push(`${where}: lesson ${item.l}`);
+  });
+  (data.form ?? []).forEach((item, i) => {
+    const where = `${file} form #${i + 1}`;
+    checkFuri(item.s, where);
+    if (blanks(item.s) !== 1) errors.push(`${where}: needs exactly one blank`);
+    if (verbs && !known.has(item.v)) errors.push(`${where}: verb ${item.v} is not in verbs.js`);
+    if (conjugate && !conjugate.FORMS[item.f]) errors.push(`${where}: unknown form ${item.f}`);
+    if (item.t !== undefined && !topics.includes(item.t)) errors.push(`${where}: topic ${item.t}`);
+    if (!item.de || !lessonOk(item.l)) errors.push(`${where}: de or lesson missing`);
+  });
+  (data.build ?? []).forEach((item, i) => {
+    const where = `${file} build #${i + 1}`;
+    if (!Array.isArray(item.c) || item.c.length < 3) errors.push(`${where}: needs at least 3 chunks`);
+    item.c?.forEach((chunk, j) => checkFuri(chunk, `${where} chunk ${j + 1}`));
+    if (new Set(item.c.map(furiKana)).size !== item.c.length) errors.push(`${where}: two chunks read the same`);
+    for (const order of item.alt ?? []) {
+      if ([...order].sort((a, b) => a - b).join() !== item.c.map((_, j) => j).join()) errors.push(`${where}: alt ${order} is not a permutation`);
+    }
+    if (!item.de || !lessonOk(item.l)) errors.push(`${where}: de or lesson missing`);
+  });
+  counts[file] = `${data.choice?.length ?? 0} choice, ${data.form?.length ?? 0} form, ${data.build?.length ?? 0} build`;
 }
 
 console.log(Object.entries(counts).map(([name, count]) => `${name}: ${count}`).join('\n'));

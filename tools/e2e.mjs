@@ -118,7 +118,7 @@ try {
   });
 
   await step('pages', async () => {
-    for (const [hash, name] of [['#/', 'home'], ['#/bereiche', 'areas'], ['#/fortschritt', 'stats'], ['#/listen', 'lists'], ['#/liste/verbs', 'list-verbs'], ['#/liste/counters', 'list-counters'], ['#/liste/kana', 'list-kana'], ['#/einstellungen', 'settings']]) {
+    for (const [hash, name] of [['#/', 'home'], ['#/bereiche', 'areas'], ['#/fortschritt', 'stats'], ['#/listen', 'lists'], ['#/liste/verbs', 'list-verbs'], ['#/liste/counters', 'list-counters'], ['#/liste/kana', 'list-kana'], ['#/liste/godan', 'list-godan'], ['#/liste/relative', 'list-relative'], ['#/liste/conditional', 'list-conditional'], ['#/liste/while', 'list-while'], ['#/einstellungen', 'settings']]) {
       await page.goto(`${base}/${hash}`);
       await page.waitForSelector('main.view');
       await page.waitForTimeout(150);

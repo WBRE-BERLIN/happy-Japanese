@@ -85,12 +85,12 @@ export function renderHome(app, main) {
     <section class="card lesson-card">
       <div>
         <h2>Deine Lektion</h2>
-        <p class="muted small">Übungen bis einschließlich dieser Lektion von Minna no Nihongo I</p>
+        <p class="muted small">Übungen bis einschließlich dieser Lektion von Minna no Nihongo (${settings.lesson <= 25 ? "I" : "II"})</p>
       </div>
       <div class="stepper" role="group" aria-label="Lektion">
         <button class="icon-btn" data-act="lesson-down" aria-label="Eine Lektion zurück" ${settings.lesson <= 1 ? 'disabled' : ''}>−</button>
         <span class="stepper-value">${settings.lesson}</span>
-        <button class="icon-btn" data-act="lesson-up" aria-label="Eine Lektion weiter" ${settings.lesson >= 25 ? 'disabled' : ''}>+</button>
+        <button class="icon-btn" data-act="lesson-up" aria-label="Eine Lektion weiter" ${settings.lesson >= 50 ? 'disabled' : ''}>+</button>
       </div>
     </section>
 
@@ -129,10 +129,10 @@ export function renderHome(app, main) {
       case 'weak': app.startPractice({ sources, focus: 'weak', weakTags: weak.map((w) => w.tag), title: 'Schwächen üben' }); break;
       case 'new':
         chooseAndStart(app, areaById.vocab, app.areaSaved('vocab'), (saved) => app.startPractice({
-          sources: [{ area: areaById.vocab, saved: { ...saved, lessons: 'current' } }], focus: 'new', title: `Neue Wörter Lektion ${settings.lesson}`, explicit: true,
+          sources: [{ area: areaById.vocab, saved: { ...saved, lessons: settings.lesson <= 25 ? 'current' : '' } }], focus: 'new', title: `Neue Wörter Lektion ${settings.lesson}`, explicit: true,
         }));
         break;
-      case 'lesson-up': app.saveSettings({ lesson: Math.min(25, settings.lesson + 1) }); app.go('#/'); break;
+      case 'lesson-up': app.saveSettings({ lesson: Math.min(50, settings.lesson + 1) }); app.go('#/'); break;
       case 'lesson-down': app.saveSettings({ lesson: Math.max(1, settings.lesson - 1) }); app.go('#/'); break;
       case 'close-hint':
         try { localStorage.setItem(HINT_KEY, '1'); } catch { /* ignore */ }

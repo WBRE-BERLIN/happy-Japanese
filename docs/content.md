@@ -111,6 +111,28 @@ plausibel sein, nicht offensichtlich falsch. `t` ist das Thema (Liste in
 `c` in der richtigen Reihenfolge; `alt` (optional) weitere richtige
 Reihenfolgen als Indexlisten.
 
+## Grammatik-Themen: `relative.js`, `conditional.js`, `while.js`
+
+Jedes Thema hat einen eigenen Bereich (`areas/topics.js`) und eine eigene
+Nachschlage-Seite. Eine Datei enthält bis zu drei Listen:
+
+```js
+export default {
+  // wie im Grammatik-Quiz: erste Option richtig, t = Thema
+  choice: [{ s: '{日本|にほん}へ＿とき、カメラを{買|か}いました。', o: ['{行|い}く', '{行|い}った', '{行|い}きます'],
+    de: 'Als (bevor) ich nach Japan fuhr, kaufte ich eine Kamera.', why: 'Kauf vor der Reise: Wörterbuchform.', l: 23, t: 'toki' }],
+  // wie bei „Verben im Satz“: v = Wörterbuchform aus verbs.js, f = Form aus FORMS (lib/conjugate.js)
+  form: [{ s: '{音楽|おんがく}を＿{勉強|べんきょう}します。', v: '聞く', f: 'nagara', de: 'Ich lerne beim Musikhören.', l: 28, t: 'nagara' }],
+  // wie beim Satzbau
+  build: [{ de: 'Das ist der Kuchen, den ich gebacken habe.', c: ['これは', '{私|わたし}が', '{作|つく}った', 'ケーキです。'], l: 22 }],
+};
+```
+
+Erlaubte Themen: `relative.js` → `modify`; `conditional.js` → `toki`, `to-cond`,
+`tara`, `ba`, `nara`, `temo`; `while.js` → `nagara`, `aida`, `aidani`, `chuu`,
+`toki`. Die Lektion darf bis 50 gehen (Minna no Nihongo II); diese Bereiche
+richten sich nicht nach der eingestellten Lektion.
+
 ## Kanji: `kanji.js`
 
 ```js
