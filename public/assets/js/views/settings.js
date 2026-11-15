@@ -32,7 +32,8 @@ export function renderSettings(app, main) {
       <section class="card form">
         <h2>Lernen</h2>
         <label class="option"><span class="option-label">Ich bin bei Lektion</span>
-          <select data-select="lesson">${Array.from({ length: 25 }, (_, i) => html`<option value="${i + 1}" ${s.lesson === i + 1 ? 'selected' : ''}>Lektion ${i + 1}</option>`)}</select></label>
+          <select data-select="lesson">${[[1, 'Minna no Nihongo I'], [26, 'Minna no Nihongo II']].map(([from, book]) => html`<optgroup label="${book}">${Array.from({ length: 25 }, (_, i) => html`<option value="${from + i}" ${s.lesson === from + i ? 'selected' : ''}>Lektion ${from + i}</option>`)}</optgroup>`)}</select></label>
+        <p class="muted small">Ab Lektion 26 (Minna II) gibt es bisher Grammatik (ながら, ば …), aber noch keine eigenen Vokabellisten.</p>
         <div class="option"><span class="option-label">Aufgaben pro Übung</span>${segment('size', { 10: '10', 20: '20', 30: '30', 50: '50' }, s.size)}</div>
         <div class="option"><span class="option-label">Neue Aufgaben pro Tag</span>${segment('newPerDay', { 5: '5', 10: '10', 15: '15', 25: '25', 40: '40' }, s.newPerDay)}</div>
         <div class="option"><span class="option-label">Tagesziel</span>${segment('goal', { 10: '10', 20: '20', 30: '30', 50: '50', 80: '80' }, s.goal)}</div>

@@ -649,3 +649,18 @@ details[open] > summary::after { transform: rotate(90deg); }
   background: var(--surface); color: var(--ink); font-size: 1.1rem; box-shadow: var(--shadow);
 }
 .direction.last { border-color: var(--accent); background: var(--accent-soft); }
+
+/* reference pages for grammar topics */
+.rules { margin: 0; padding-left: 1.2em; line-height: 2.1; }
+.rules li { margin-bottom: 6px; }
+.example-list { list-style: none; margin: 8px 0 0; padding: 0; }
+.example-list li { display: grid; gap: 2px; padding: 8px 0; border-top: 1px solid var(--line); }
+.example-list li:first-child { border-top: 0; }
+.example-list .sentence { font-size: 1.15rem; line-height: 2.1; }
+.grammar-point h2 { display: flex; gap: 10px; align-items: baseline; }
+.grammar-point p { line-height: 2; margin: 6px 0; }
+.list-heading { margin: 22px 4px 10px; font-size: 1.1rem; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.pair:first-of-type { border-top: 0; }
+.pair-verb { display: grid; gap: 2px; line-height: 2; }
+.pair-verb .small .jp + .jp::before { content: " · "; color: var(--muted); }

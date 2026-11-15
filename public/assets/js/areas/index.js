@@ -6,6 +6,7 @@ import {
 } from './grammar.js';
 import { numbers, prices, clock, dates, timeWords, counters } from './numbers.js';
 import { positions, family, phrases, PHRASE_CATEGORIES } from './life.js';
+import { relativeArea, conditionalArea, whileArea } from './topics.js';
 import { ADJ_FORMS, FORMS } from '../lib/conjugate.js';
 import { counterById } from '../lib/numbers.js';
 
@@ -19,6 +20,7 @@ export const GROUPS = [
 export const AREAS = [
   vocab, kana, kanji,
   particles, verbFormsArea, verbGroups, verbCloze, adjFormsArea, adjType, adjCloze, grammarQuiz, sentenceBuilding, questionWords, plainPolite,
+  relativeArea, conditionalArea, whileArea,
   numbers, prices, clock, dates, timeWords, counters,
   phrases, travel, signsArea, positions, family,
 ];
@@ -32,6 +34,7 @@ const PREFIX_AREA = {
   v: 'vocab', t: 'travel', k: 'kana', kj: 'kanji', sg: 'signs', pt: 'particles', vf: 'verbs', vg: 'verbgroups', vc: 'verbcloze',
   af: 'adjectives', at: 'adjtype', ac: 'adjcloze', pp: 'plainpolite', gr: 'grammar', sb: 'sentences', qw: 'questionwords',
   num: 'numbers', pr: 'prices', clk: 'clock', dt: 'dates', tw: 'timewords', ct: 'counters', loc: 'positions', fam: 'family', ph: 'phrases',
+  rel: 'relative', cond: 'conditional', whl: 'while',
 };
 
 export const areaOfItem = (itemId) => areaById[PREFIX_AREA[itemId.split(':')[0]]];
@@ -64,6 +67,7 @@ const SIMPLE = {
   'time:mhan': 'halb (はん)', 'time:mx0': 'volle 10 Minuten (じゅっぷん …)', 'ctr:sound': 'Zählwörter mit Lautwandel (1, 3, 6, 8, 10)',
   'num:build': 'Zahlen sagen', 'num:read': 'Zahlen aus der Lesung', 'num:kanji': 'Kanji-Zahlen', 'num:hear': 'Zahlen hören', 'num:price': 'Preise',
   'num:small': 'Zahlen bis 100', 'num:mid': 'Zahlen bis 9.999', 'num:big': 'Große Zahlen (万, 億)',
+  'vg:pair': 'Verwechslungspaare (かえる, きる, いる …)',
   'dir:jd': 'Japanisch → Deutsch', 'dir:dj': 'Deutsch → Japanisch', 'pp:toPlain': 'Höflich → einfach', 'pp:toPolite': 'Einfach → höflich', sb: 'Satzbau',
 };
 
@@ -96,9 +100,15 @@ export function areasForTag(tag) {
   const map = {
     part: ['particles'], form: ['verbs', 'verbcloze'], te: ['verbs', 'verbcloze'], grp: ['verbgroups', 'verbs'], trap: ['verbgroups', 'verbs'],
     aform: ['adjectives', 'adjcloze'], adj: ['adjectives', 'adjtype', 'adjcloze'], kana: ['kana'], kanji: ['kanji'], kmode: ['kanji'], sign: ['signs'],
-    loc: ['positions'], fam: ['family'], date: ['dates'], time: ['clock'], ctr: ['counters'], snd: ['numbers', 'prices'], num: ['numbers', 'prices'],
+    loc: ['positions'], fam: ['family'], vg: ['verbgroups'], date: ['dates'], time: ['clock'], ctr: ['counters'], snd: ['numbers', 'prices'], num: ['numbers', 'prices'],
     gr: ['grammar', 'questionwords'], pos: ['vocab'], deck: ['travel'], phr: ['phrases'], tw: ['timewords'], dir: ['vocab'], pp: ['plainpolite'], sb: ['sentences'],
   }[prefix];
+  if (prefix === 'gr') {
+    const topic = tag.slice(3);
+    if (topic === 'modify') return ['relative', 'grammar'];
+    if (['toki', 'to-cond', 'tara', 'ba', 'nara', 'temo'].includes(topic)) return ['conditional', 'grammar'];
+    if (['nagara', 'aida', 'aidani', 'chuu'].includes(topic)) return ['while'];
+  }
   if (map) return map;
   if (/^L\d+$/.test(tag)) return ['vocab', 'particles', 'grammar', 'verbcloze', 'sentences'];
   return AREAS.map((a) => a.id);

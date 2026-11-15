@@ -22,10 +22,17 @@ export const FORMS = {
   nakatta: { label: 'なかった-Form', example: '食べなかった', lesson: 20 },
   tara: { label: 'たら-Form', example: '食べたら', lesson: 25 },
   temo: { label: 'ても-Form', example: '食べても', lesson: 25 },
+  // Minna no Nihongo II
+  nagara: { label: 'ながら', example: '食べながら', lesson: 28 },
+  ba: { label: 'ば-Form', example: '食べれば', lesson: 35 },
+  naba: { label: 'なければ', example: '食べなければ', lesson: 35 },
 };
 
 /** Plain ↔ polite pairs (lesson 20). */
 export const PLAIN_OF = { masu: 'dict', masen: 'nai', mashita: 'ta', masendeshita: 'nakatta' };
+
+/** Godan: the e-row kana for the ば-form. */
+const E_ROW = { う: 'え', く: 'け', ぐ: 'げ', す: 'せ', つ: 'て', ぬ: 'ね', ぶ: 'べ', む: 'め', る: 'れ' };
 
 const U_TO = {
   う: ['い', 'わ', 'って'], く: ['き', 'か', 'いて'], ぐ: ['ぎ', 'が', 'いで'], す: ['し', 'さ', 'して'],
@@ -41,18 +48,18 @@ const toPast = (te) => te.replace(/て$/, 'た').replace(/で$/, 'だ');
 function blocks(text, group, kana, kind) {
   if (kind === 'kuru') {
     const base = text.slice(0, -2);
-    const k = kana ? ['き', 'こ', 'きて'] : ['来', '来', '来て'];
-    return { stem: base + k[0], nai: base + k[1], te: base + k[2] };
+    const k = kana ? ['き', 'こ', 'きて', 'くれば'] : ['来', '来', '来て', '来れば'];
+    return { stem: base + k[0], nai: base + k[1], te: base + k[2], ba: base + k[3] };
   }
   if (group === 3) {
     const base = text.slice(0, -2);
-    return { stem: `${base}し`, nai: `${base}し`, te: `${base}して` };
+    return { stem: `${base}し`, nai: `${base}し`, te: `${base}して`, ba: `${base}すれば` };
   }
   const base = text.slice(0, -1);
-  if (group === 2) return { stem: base, nai: base, te: `${base}て` };
+  if (group === 2) return { stem: base, nai: base, te: `${base}て`, ba: `${base}れば` };
 
   const [i, a, te] = U_TO[text.at(-1)];
-  return { stem: base + i, nai: base + a, te: kind === 'iku' ? `${base}って` : base + te };
+  return { stem: base + i, nai: base + a, te: kind === 'iku' ? `${base}って` : base + te, ba: `${base}${E_ROW[text.at(-1)]}ば` };
 }
 
 function kindOf(written, reading, group) {
@@ -81,6 +88,9 @@ function build(text, group, kana, kind, form) {
     case 'nakatta': return `${nai}なかった`;
     case 'tara': return `${toPast(b.te)}ら`;
     case 'temo': return `${b.te}も`;
+    case 'nagara': return `${b.stem}ながら`;
+    case 'ba': return b.ba;
+    case 'naba': return `${nai}なければ`;
     default: throw new Error(`Unknown verb form ${form}`);
   }
 }
@@ -127,6 +137,7 @@ export const ADJ_FORMS = {
   pl_neg: { label: 'einfach, verneint', example: '大きくない / 静かじゃない', lesson: 20 },
   pl_past: { label: 'einfach, Vergangenheit', example: '大きかった / 静かだった', lesson: 20 },
   pl_pastneg: { label: 'einfach, Vergangenheit verneint', example: '大きくなかった / 静かじゃなかった', lesson: 20 },
+  ba: { label: 'ば-Form (wenn)', example: '大きければ / 静かなら', lesson: 35 },
 };
 
 /** いい and words ending in it change their stem to よ-. */
@@ -147,6 +158,7 @@ function adjText(text, type, irregular, form) {
       pl_neg: [`${text}じゃない`, `${text}ではない`],
       pl_past: [`${text}だった`],
       pl_pastneg: [`${text}じゃなかった`, `${text}ではなかった`],
+      ba: [`${text}なら`, `${text}ならば`],
     }[form];
   }
   const stem = irregular ? `${text.slice(0, -2)}よ` : text.slice(0, -1);
@@ -163,6 +175,7 @@ function adjText(text, type, irregular, form) {
     pl_neg: [`${stem}くない`],
     pl_past: [`${stem}かった`],
     pl_pastneg: [`${stem}くなかった`],
+    ba: [`${stem}ければ`],
   }[form];
 }
 

@@ -93,6 +93,8 @@ function verbRule(v, form) {
     return v.reading.endsWith('くる') ? '来る → 来ない (こない)' : 'する → しない';
   }
   if (form === 'dict') return v.group === 1 ? `${g}: ます-Stamm -i → -u` : v.group === 2 ? `${g}: ます → る` : 'します → する, 来ます → 来る (くる)';
+  if (form === 'ba') return v.group === 1 ? `${g}: -u → -e + ば (書く → 書けば)` : v.group === 2 ? `${g}: る → れば` : 'する → すれば, 来る → 来れば (くれば)';
+  if (form === 'naba') return 'ない-Form: ない → なければ';
   return v.group === 1 ? `${g}: -u → -i + ${FORMS[form].label.replace('-Form', '')}` : v.group === 2 ? `${g}: る weg` : 'する → し, 来る → 来 (き)';
 }
 
@@ -105,10 +107,11 @@ const FORM_SETS = {
   ta: 'た-Form',
   plain: 'Einfache Formen (ない, た, なかった)',
   cond: 'たら und ても',
+  b2: 'Minna II: ながら, ば, なければ',
 };
 const FORM_SET_KEYS = {
   masu: ['masen', 'mashita', 'masendeshita', 'mashou', 'masenka', 'tai'], te: ['te'], nai: ['nai'], dict: ['dict'], ta: ['ta'],
-  plain: ['nai', 'ta', 'nakatta'], cond: ['tara', 'temo'],
+  plain: ['nai', 'ta', 'nakatta'], cond: ['tara', 'temo'], b2: ['nagara', 'ba', 'naba'],
 };
 
 export const verbFormsArea = {
@@ -151,38 +154,158 @@ export const verbFormsArea = {
   },
 };
 
+/** Godan verbs that end in -iru/-eru like ichidan verbs, also outside book I. */
+export const TRAP_VERBS = [
+  ['帰る', 'かえる', 'zurückkehren'], ['入る', 'はいる', 'hineingehen'], ['切る', 'きる', 'schneiden'], ['知る', 'しる', 'erfahren, kennen'],
+  ['要る', 'いる', 'brauchen'], ['走る', 'はしる', 'rennen'], ['減る', 'へる', 'weniger werden'], ['喋る', 'しゃべる', 'plaudern'],
+  ['握る', 'にぎる', 'greifen, festhalten'], ['蹴る', 'ける', 'treten (mit dem Fuß)'], ['滑る', 'すべる', 'rutschen'], ['参る', 'まいる', 'gehen, kommen (bescheiden)'],
+  ['限る', 'かぎる', 'begrenzen'], ['散る', 'ちる', 'fallen (Blätter, Blüten)'], ['照る', 'てる', 'scheinen (Sonne)'], ['焦る', 'あせる', 'sich hetzen'],
+  ['混じる', 'まじる', 'sich vermischen'], ['湿る', 'しめる', 'feucht werden'], ['練る', 'ねる', 'kneten; ausarbeiten'], ['茂る', 'しげる', 'wuchern'],
+].map(([dict, reading, de]) => {
+  const book = VERBS.find((v) => v.dict === dict);
+  return book ?? { v: [dict, reading, 1], dict, reading, group: 1, de, lesson: 0, extra: true };
+});
+
+/** Same reading, different group: the classic mix-ups. */
+export const VERB_PAIRS = [
+  ['帰る', '変える'], ['帰る', '換える'], ['切る', '着る'], ['要る', 'いる'], ['湿る', '閉める'], ['練る', '寝る'],
+].map(([a, b]) => [a, b].map((dict) => VERBS.find((v) => v.dict === dict) ?? TRAP_VERBS.find((v) => v.dict === dict)));
+
+const GROUP_FORMS = ['masu', 'nai', 'te'];
+const otherGroup = (v) => [v.dict, v.reading, v.group === 1 ? 2 : 1];
+const looksLikeIchidan = (v) => /[いきぎしじちにひびみりえけげせぜてでねへべめれ]る$/.test(v.reading);
+
+function groupWhy(v) {
+  return {
+    1: looksIchidan(v.v) ? `Achtung, Falle: ${v.dict} endet auf -iru/-eru, ist aber Godan (Gruppe I).` : 'Godan (Gruppe I): Wörterbuchform auf -u, ます-Stamm auf -i.',
+    2: 'Ichidan (Gruppe II): る fällt weg – ます-Stamm auf -e oder -i (見ます, 起きます, 借ります …).',
+    3: 'Unregelmäßig (Gruppe III): する, 来る und Nomen + する.',
+  }[v.group];
+}
+
 export const verbGroups = {
   id: 'verbgroups',
-  title: 'Verbgruppen',
+  title: 'Godan & Ichidan',
   group: 'gram',
   icon: 'grid',
-  blurb: 'Gruppe I, II oder III? Mit den typischen Fallen',
-  options: [{ key: 'from', label: 'Gezeigte Form', choices: { mix: 'Gemischt', masu: 'ます-Form', dict: 'Wörterbuchform' }, default: 'mix' }],
-  ref: 'verbs',
+  blurb: 'Gruppe I (ごだん), II (いちだん) oder III – mit Fallen wie かえる (zurückkehren) und きる (schneiden)',
+  options: [
+    { key: 'mode', label: 'Übungsart', choices: { mix: 'Gemischt', classify: 'Gruppe bestimmen', forms: 'Richtige Form wählen', pairs: 'Verwechslungspaare' }, default: 'mix' },
+    { key: 'verbs', label: 'Verben', choices: { all: 'Alle', tricky: 'Nur -iru/-eru (die schwierigen)' }, default: 'all' },
+    { key: 'from', label: 'Gezeigte Form', choices: { mix: 'Gemischt', masu: 'ます-Form', dict: 'Wörterbuchform' }, default: 'mix' },
+  ],
+  ref: 'godan',
   items(ctx) {
-    return VERBS.filter((v) => v.lesson <= max(ctx)).map((v) => ({ id: `vg:${v.dict}`, lesson: v.lesson, tags: [`L${v.lesson}`, ...verbTags(v)], verb: v }));
+    const mode = ctx.opts.mode ?? 'mix';
+    const tricky = ctx.opts.verbs === 'tricky';
+    const book = VERBS.filter((v) => v.lesson <= max(ctx));
+    const extra = TRAP_VERBS.filter((v) => v.extra);
+    const pool = [...book, ...extra].filter((v) => !tricky || (v.group !== 3 && looksLikeIchidan(v)));
+    const items = [];
+    if (mode === 'mix' || mode === 'classify') {
+      items.push(...pool.map((v) => ({ id: `vg:${v.dict}`, group: `vg:${v.dict}`, lesson: v.lesson || undefined, tags: [...(v.lesson ? [`L${v.lesson}`] : []), ...verbTags(v)], verb: v })));
+    }
+    if (mode === 'mix' || mode === 'forms') {
+      for (const v of pool.filter((x) => x.group !== 3)) {
+        for (const form of GROUP_FORMS) items.push({ id: `vg:f:${v.dict}:${form}`, group: `vg:${v.dict}`, lesson: Math.max(v.lesson || 14, FORMS[form].lesson), tags: verbTags(v, form), verb: v, form });
+      }
+    }
+    if (mode === 'mix' || mode === 'pairs') {
+      VERB_PAIRS.forEach((pair, p) => pair.forEach((v) => {
+        for (const form of GROUP_FORMS) items.push({ id: `vg:p:${p}:${v.dict}:${form}`, group: `vg:p:${p}`, lesson: Math.max(v.lesson || 14, FORMS[form].lesson), tags: ['vg:pair', ...verbTags(v, form)], verb: v, form, partner: pair.find((x) => x !== v) });
+      }));
+    }
+    return items.filter((item) => !item.lesson || item.lesson <= max(ctx));
   },
   task(item, ctx) {
     const v = item.verb;
+    if (item.form) {
+      // The right form, the form the verb would have in the other group, and (for pairs) the partner's form.
+      const right = verbForm(v.v, item.form);
+      const wrong = [verbForm(otherGroup(v), item.form)];
+      if (item.partner) wrong.push(verbForm(item.partner.v, item.form));
+      // Typical slips: ます-stem + ない (帰りない), the い-rule for the て-form (帰いて).
+      const made = (written, reading) => ({ written, reading, furi: furiWord(written, reading) });
+      if (item.form === 'nai' && v.group === 1) {
+        const stem = verbForm(v.v, 'stem');
+        wrong.push(made(`${stem.written}ない`, `${stem.reading}ない`));
+      }
+      if (item.form === 'te' && v.group === 1 && !/[くぐす]$/.test(v.reading)) wrong.push(made(`${v.dict.slice(0, -1)}いて`, `${v.reading.slice(0, -1)}いて`));
+      const seen = new Set([right.written]);
+      const options = wrong.filter((w) => !seen.has(w.written) && seen.add(w.written));
+      return {
+        kind: 'choice',
+        label: `${item.partner ? 'Vorsicht, Verwechslungsgefahr! ' : ''}Welche ${FORMS[item.form].label} ist richtig?`,
+        prompt: html`<div class="big-jp">${jp(furiWord(v.dict, v.reading))}</div>`.text,
+        sub: html`${v.de}`.text,
+        columns: 1,
+        options: shuffle([{ html: jp(right.furi).text, correct: true }, ...options.map((w) => ({ html: jp(w.furi).text, correct: false }))], ctx.rng),
+        explain: html`<p>${groupWhy(v)}</p><p>${verbRule(v, item.form)}</p>${item.partner ? html`<p class="muted">Nicht verwechseln: ${jp(furiWord(item.partner.dict, item.partner.reading))} (${item.partner.de}) → ${jp(verbForm(item.partner.v, item.form).furi)}</p>` : ''}`.text,
+        speakAnswer: right.reading,
+      };
+    }
     const from = ctx.opts.from === 'mix' || !ctx.opts.from ? pick(['masu', 'dict'], ctx.rng) : ctx.opts.from;
     const shown = verbForm(v.v, from);
-    const why = {
-      1: looksIchidan(v.v) ? 'Achtung, Falle: endet auf -iru/-eru, ist aber Gruppe I. ます-Form: ' : 'ます-Stamm auf -i, Wörterbuchform auf -u. ます-Form: ',
-      2: 'ます-Stamm auf -e – oder eine der Ausnahmen auf -i (見ます, 起きます, 借ります …). Wörterbuchform: ',
-      3: 'Unregelmäßig: する, 来る und Nomen + する. Wörterbuchform: ',
-    }[v.group];
-    const other = verbForm(v.v, v.group === 1 ? 'masu' : 'dict');
+    const other = verbForm(v.v, from === 'masu' ? 'dict' : 'masu');
     return {
       kind: 'choice',
       label: 'Zu welcher Gruppe gehört das Verb?',
       prompt: html`<div class="big-jp">${jp(shown.furi)}</div>`.text,
       sub: html`${v.de}`.text,
       columns: 1,
-      options: [1, 2, 3].map((g) => ({ html: html`${GROUP_NAME[g]} <span class="muted">${['', '(Godan, 五段)', '(Ichidan, 一段)', '(unregelmäßig)'][g]}</span>`.text, correct: g === v.group })),
-      explain: html`${why}${jp(other.furi)}`.text,
+      options: [1, 2, 3].map((g) => ({ html: html`${['', 'Godan (五段) – Gruppe I', 'Ichidan (一段) – Gruppe II', 'Unregelmäßig – Gruppe III'][g]}`.text, correct: g === v.group })),
+      explain: html`<p>${groupWhy(v)}</p><p>${jp(shown.furi)} · ${jp(other.furi)}</p>`.text,
     };
   },
 };
+
+/* ---------- reusable task builders (also used by the topic areas) ---------- */
+
+export function verbClozeTask(c) {
+  const v = verbByDict[c.v];
+  const form = verbForm(v.v, c.f);
+  const [before, after] = c.s.split(BLANK);
+  const hintWord = furiWord(v.dict, v.reading);
+  return {
+    kind: 'input',
+    label: `Setz das Verb ein (${FORMS[c.f].label})`,
+    prompt: html`<div class="sentence">${jp(before)}<span class="gap">（${jp(hintWord)}）</span>${jp(after)}</div>`.text,
+    sub: html`${c.de}`.text,
+    accept: acceptJapanese(form),
+    answerHtml: html`<span class="sentence">${jp(before)}<mark>${jp(form.furi)}</mark>${jp(after)}</span>`.text,
+    explain: html`${verbRule(v, c.f)}`.text,
+    speakAnswer: furiKana(before) + form.reading + furiKana(after),
+  };
+}
+
+export function grammarChoiceTask(g, ctx) {
+  const [before, after = ''] = g.s.split(BLANK);
+  const hasGap = g.s.includes(BLANK);
+  return choiceTask({
+    label: g.q ?? 'Was passt in die Lücke?',
+    prompt: html`<div class="sentence">${jp(before)}${hasGap ? html`<span class="gap">＿＿</span>` : ''}${jp(after)}</div>`.text,
+    columns: 1,
+    explain: html`<p class="sentence">${jp(before)}<mark>${jp(g.o[0])}</mark>${jp(after)}</p><p class="muted">${g.de}</p><p>${g.why}</p>`.text,
+    speakAnswer: furiKana(before) + furiKana(g.o[0]) + furiKana(after),
+  }, jp(g.o[0]).text, g.o.slice(1).map((o) => jp(o).text), ctx.rng);
+}
+
+export function sentenceTask(s, ctx) {
+  const keys = s.c.map((chunk) => furiKana(chunk));
+  const orders = [s.c.map((_, i) => i), ...(s.alt ?? [])];
+  const tiles = shuffle(s.c.map((chunk, i) => ({ key: keys[i], html: jp(chunk).text })), ctx.rng);
+  return {
+    kind: 'tiles',
+    label: 'Bilde den Satz auf Japanisch',
+    prompt: html`<div class="big-de">${s.de}</div>`.text,
+    tiles,
+    solutions: orders.map((order) => order.map((i) => keys[i])),
+    answerHtml: html`<span class="sentence">${s.c.map((chunk) => jp(chunk))}</span>`.text,
+    speakAnswer: keys.join(''),
+  };
+}
+
+export { verbByDict };
 
 export const verbCloze = {
   id: 'verbcloze',
@@ -195,23 +318,7 @@ export const verbCloze = {
     return verbcloze.filter((c) => c.l <= max(ctx) && (!ctx.opts.form || c.f === ctx.opts.form) && verbByDict[c.v])
       .map((c) => ({ id: `vc:${hash(c.s + c.v)}`, lesson: c.l, tags: [`L${c.l}`, ...verbTags(verbByDict[c.v], c.f)], c }));
   },
-  task(item) {
-    const { c } = item;
-    const v = verbByDict[c.v];
-    const form = verbForm(v.v, c.f);
-    const [before, after] = c.s.split(BLANK);
-    const hintWord = furiWord(v.dict, v.reading);
-    return {
-      kind: 'input',
-      label: `Setz das Verb ein (${FORMS[c.f].label})`,
-      prompt: html`<div class="sentence">${jp(before)}<span class="gap">（${jp(hintWord)}）</span>${jp(after)}</div>`.text,
-      sub: html`${c.de}`.text,
-      accept: acceptJapanese(form),
-      answerHtml: html`<span class="sentence">${jp(before)}<mark>${jp(form.furi)}</mark>${jp(after)}</span>`.text,
-      explain: html`${verbRule(v, c.f)}`.text,
-      speakAnswer: furiKana(before) + form.reading + furiKana(after),
-    };
-  },
+  task: (item) => verbClozeTask(item.c),
 };
 
 /* ---------- adjectives ---------- */
@@ -395,6 +502,7 @@ export const TOPICS = {
   nai: 'ない-Form-Muster', dict: 'Wörterbuchform-Muster', ta: 'た-Form-Muster', naru: '〜くなります / 〜になります',
   plain: 'Einfache Form', omou: 'と思います / と言いました', modify: 'Relativsätze', toki: 'とき',
   'to-cond': 'Bedingung mit と', tara: 'たら', temo: 'ても', kureru: '〜てあげます / もらいます / くれます',
+  ba: 'Bedingung mit ば', nara: 'なら', nagara: 'ながら (gleichzeitig)', aida: '〜あいだ (die ganze Zeit)', aidani: '〜あいだに (irgendwann während)', chuu: '〜ちゅう (während, mitten in)',
 };
 
 export const grammarQuiz = {
@@ -408,18 +516,7 @@ export const grammarQuiz = {
     return grammarData.filter((g) => g.l <= max(ctx) && (!ctx.opts.topic || g.t === ctx.opts.topic))
       .map((g) => ({ id: `gr:${hash(g.s + g.o[0])}`, lesson: g.l, tags: [`L${g.l}`, `gr:${g.t}`], g }));
   },
-  task(item, ctx) {
-    const { g } = item;
-    const [before, after = ''] = g.s.split(BLANK);
-    const hasGap = g.s.includes(BLANK);
-    return choiceTask({
-      label: g.q ?? 'Was passt in die Lücke?',
-      prompt: html`<div class="sentence">${jp(before)}${hasGap ? html`<span class="gap">＿＿</span>` : ''}${jp(after)}</div>`.text,
-      columns: 1,
-      explain: html`<p class="sentence">${jp(before)}<mark>${jp(g.o[0])}</mark>${jp(after)}</p><p class="muted">${g.de}</p><p>${g.why}</p>`.text,
-      speakAnswer: furiKana(before) + furiKana(g.o[0]) + furiKana(after),
-    }, jp(g.o[0]).text, g.o.slice(1).map((o) => jp(o).text), ctx.rng);
-  },
+  task: (item, ctx) => grammarChoiceTask(item.g, ctx),
 };
 
 /* ---------- sentence building ---------- */
@@ -434,21 +531,7 @@ export const sentenceBuilding = {
   items(ctx) {
     return sentencesData.filter((s) => s.l <= max(ctx)).map((s) => ({ id: `sb:${hash(s.de + s.c.join(''))}`, lesson: s.l, tags: [`L${s.l}`, 'sb'], s }));
   },
-  task(item, ctx) {
-    const { s } = item;
-    const keys = s.c.map((chunk) => furiKana(chunk));
-    const orders = [s.c.map((_, i) => i), ...(s.alt ?? [])];
-    const tiles = shuffle(s.c.map((chunk, i) => ({ key: keys[i], html: jp(chunk).text })), ctx.rng);
-    return {
-      kind: 'tiles',
-      label: 'Bilde den Satz auf Japanisch',
-      prompt: html`<div class="big-de">${s.de}</div>`.text,
-      tiles,
-      solutions: orders.map((order) => order.map((i) => keys[i])),
-      answerHtml: html`<span class="sentence">${s.c.map((chunk) => jp(chunk))}</span>`.text,
-      speakAnswer: keys.join(''),
-    };
-  },
+  task: (item, ctx) => sentenceTask(item.s, ctx),
 };
 
 /* ---------- question words ---------- */

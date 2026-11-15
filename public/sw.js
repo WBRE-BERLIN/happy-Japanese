@@ -1,7 +1,7 @@
 /* Happy Japanese service worker: the whole app is cached, so it opens and works offline.
    VERSION and SHELL are written by tools/build-sw.mjs (run it after changing files in public/). */
 
-const VERSION = '7b4f6fb4e835';
+const VERSION = 'ca355f7bd2f5';
 const SHELL = [
   './',
   'index.html',
@@ -19,13 +19,16 @@ const SHELL = [
   'assets/js/areas/life.js',
   'assets/js/areas/numbers.js',
   'assets/js/areas/script.js',
+  'assets/js/areas/topics.js',
   'assets/js/areas/vocab.js',
   'assets/js/data/adjcloze.js',
   'assets/js/data/adjectives.js',
+  'assets/js/data/conditional.js',
   'assets/js/data/grammar.js',
   'assets/js/data/kanji.js',
   'assets/js/data/particles.js',
   'assets/js/data/phrases.js',
+  'assets/js/data/relative.js',
   'assets/js/data/sentences.js',
   'assets/js/data/signs.js',
   'assets/js/data/verbcloze.js',
@@ -33,6 +36,7 @@ const SHELL = [
   'assets/js/data/vocab-1.js',
   'assets/js/data/vocab-2.js',
   'assets/js/data/vocab-travel.js',
+  'assets/js/data/while.js',
   'assets/js/lib/analysis.js',
   'assets/js/lib/api.js',
   'assets/js/lib/cat.js',

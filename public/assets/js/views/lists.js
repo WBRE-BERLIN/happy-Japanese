@@ -2,9 +2,12 @@
 import { ADJ_FORMS, FORMS, adjForm, verbForm } from '../lib/conjugate.js';
 import { COUNTERS, TIME_GRID, WEEKDAYS, dayReading, monthReading, numberKana, numberKanji, minuteReading, hourKana } from '../lib/numbers.js';
 import { KANA_ROWS, kanaToRomaji, toKatakana } from '../lib/kana.js';
-import { wordFuri as furiWord } from '../lib/furi.js';
+import { furiHtml, wordFuri as furiWord } from '../lib/furi.js';
 import { html, icon, jp, raw } from '../lib/ui.js';
-import { VERBS, ADJS, QUESTION_WORDS } from '../areas/grammar.js';
+import { VERBS, ADJS, QUESTION_WORDS, TRAP_VERBS, VERB_PAIRS } from '../areas/grammar.js';
+import relative from '../data/relative.js';
+import conditional from '../data/conditional.js';
+import whileData from '../data/while.js';
 import { LESSON_WORDS, TRAVEL_WORDS, DECKS } from '../areas/vocab.js';
 import { KANJI, SIGNS, signHtml } from '../areas/script.js';
 import { FAMILY, PHRASE_CATEGORIES } from '../areas/life.js';
@@ -37,6 +40,10 @@ const LISTS = [
   { id: 'verbs', title: 'Verben in allen Formen', icon: 'verb' },
   { id: 'adjectives', title: 'Adjektive in allen Formen', icon: 'sparkle' },
   { id: 'particles', title: 'Partikel-Übersicht', icon: 'blocks' },
+  { id: 'godan', title: 'Godan & Ichidan erkennen', icon: 'grid' },
+  { id: 'relative', title: 'Relativsätze', icon: 'link' },
+  { id: 'conditional', title: 'Wenn & als (とき, たら, ば …)', icon: 'swap' },
+  { id: 'while', title: 'Während (ながら, あいだ …)', icon: 'hourglass' },
   { id: 'counters', title: 'Zählwörter', icon: 'abacus' },
   { id: 'numbers', title: 'Zahlen & Lautwandel', icon: 'hash' },
   { id: 'time', title: 'Uhrzeit', icon: 'clock' },
@@ -60,6 +67,41 @@ const searchBox = (placeholder) => html`<input class="search" type="search" plac
 function formGrid(entries) {
   return html`<div class="form-grid">${entries.map(([label, form]) => html`<span class="form-label">${label}</span><span>${jp(form.furi)}</span>`)}</div>`;
 }
+
+/** The sentence of a choice item with the right option in place. */
+const filled = (g) => {
+  const [before, after = ''] = g.s.split('＿');
+  return html`${jp(before)}<mark>${jp(g.o[0])}</mark>${jp(after)}`;
+};
+
+/** Up to n example sentences of a topic from a choice list. */
+const examples = (list, topic, n = 4) => html`<ul class="example-list">${list.filter((g) => !topic || g.t === topic).slice(0, n)
+  .map((g) => html`<li><span class="sentence">${filled(g)}</span><span class="muted small">${g.de}</span></li>`)}</ul>`;
+
+/** German text with Japanese in furigana notation and **bold** parts. */
+const rich = (text) => raw(String(text).split('**').map((part, i) => (i % 2 ? `<strong>${furiHtml(part)}</strong>` : furiHtml(part))).join(''));
+
+const rules = (items) => html`<ul class="rules">${items.map((item) => html`<li>${rich(item)}</li>`)}</ul>`;
+
+const CONDITIONALS = [
+  ['toki', 'とき', 'Lektion 23', 'Verb (Wörterbuch- oder た-Form), い-Adjektiv, な-Adjektiv + な, Nomen + の + とき',
+    '„wenn / als“ – zu der Zeit, in der … Wörterbuchform: die Handlung ist noch nicht abgeschlossen; た-Form: sie ist abgeschlossen. {日本|にほん}へ{行|い}くとき (vor der Reise) ↔ {日本|にほん}へ{行|い}ったとき (in Japan).'],
+  ['to-cond', 'と', 'Lektion 23', 'Wörterbuchform oder ない-Form + と',
+    '„immer wenn / sobald“ – automatische, sichere Folge (Geräte, Wege, Natur). Danach kein Wunsch, keine Bitte, keine Absicht.'],
+  ['tara', 'たら', 'Lektion 25', 'た-Form + ら (auch Adjektive: {安|やす}かったら, {暇|ひま}だったら)',
+    '„wenn / falls“ und „sobald“; mit Vergangenheit im Hauptsatz auch „als“ (Entdeckung): {家|うち}に{帰|かえ}ったら、{手紙|てがみ}が{来|き}ていました.'],
+  ['temo', 'ても', 'Lektion 25', 'て-Form + も ({高|たか}くても, {静|しず}かでも, {雨|あめ}でも)', '„auch wenn / selbst wenn“ – das Ergebnis bleibt trotzdem.'],
+  ['ba', 'ば', 'Lektion 35', 'Godan: -u → -e + ば ({書|か}けば); Ichidan: る → れば; する → すれば; {来|く}る → {来|く}れば; い-Adj: い → ければ',
+    '„wenn“ – Bedingung, oft für allgemeine Regeln und Ratschläge. Verneint: 〜なければ.'],
+  ['nara', 'なら', 'Lektion 35', 'Nomen, Verb oder Adjektiv + なら', '„wenn es um … geht / falls du … willst“ – greift auf, was der andere gesagt hat, und gibt Rat dazu.'],
+];
+
+const WHILES = [
+  ['nagara', 'ながら', 'ます-Stamm + ながら ({聞|き}きながら)', 'Zwei Handlungen gleichzeitig von derselben Person. Die Haupthandlung steht am Ende.'],
+  ['aida', '〜{間|あいだ}', 'Verb in ている-Form / Nomen + の + {間|あいだ}', '„während“ – die ganze Zeit über passiert das andere.'],
+  ['aidani', '〜{間|あいだ}に', 'Verb in ている-Form / Nomen + の + {間|あいだ}に', '„während“ – irgendwann in dieser Zeit passiert etwas einmal.'],
+  ['chuu', '〜{中|ちゅう}', 'Nomen + {中|ちゅう}', '„während / gerade bei“: {会議中|かいぎちゅう}, {授業中|じゅぎょうちゅう}, {食事中|しょくじちゅう}, {工事中|こうじちゅう}.'],
+];
 
 const BUILDERS = {
   vocab(app) {
@@ -91,6 +133,57 @@ const BUILDERS = {
       ${ADJS.map((a) => html`<details class="card list-item" data-group="${a.type === 'i' ? 'い' : 'な'}" data-search="${`${a.word} ${a.reading} ${a.de}`.toLowerCase()}">
         <summary><span>${jp(furiWord(a.word, a.reading))}</span><span class="muted">${a.de}</span><span class="badge soft">${a.type === 'i' ? 'い' : 'な'}</span></summary>
         ${formGrid(Object.keys(ADJ_FORMS).map((f) => [ADJ_FORMS[f].label, adjForm(a.a, f)]))}</details>`)}`;
+  },
+  godan() {
+    const compare = [['書く', 'かく', 1], ['帰る', 'かえる', 1], ['食べる', 'たべる', 2], ['見る', 'みる', 2], ['する', 'する', 3], ['来る', 'くる', 3]];
+    const formKeys = Object.keys(FORMS).filter((f) => f !== 'stem');
+    return html`
+      <section class="card"><h2>So erkennst du die Gruppe</h2>${rules([
+        '**Godan ({五段|ごだん}, Gruppe I):** Wörterbuchform auf -u: う, く, ぐ, す, つ, ぬ, ぶ, む, る. ます-Stamm auf -i: {書|か}く → {書|か}きます.',
+        '**Ichidan ({一段|いちだん}, Gruppe II):** Wörterbuchform auf -iru oder -eru (る nach einem i- oder e-Laut): {食|た}べる, {見|み}る. ます-Form: る weg + ます.',
+        '**Unregelmäßig (Gruppe III):** する, {来|く}る und Nomen + する ({勉強|べんきょう}する).',
+        '**Merkregel:** -aru, -uru, -oru → immer Godan ({分|わ}かる, {作|つく}る, {乗|の}る). -iru, -eru → meistens Ichidan, aber es gibt Godan-Ausnahmen (unten).',
+        '**Von der ます-Form aus:** Stamm auf -e ({食|た}べます) → Ichidan. Stamm auf -i ({書|か}きます) → Godan, außer bei Ichidan-Verben auf -iru ({見|み}ます, {起|お}きます, {借|か}ります).',
+      ])}</section>
+      <section class="card"><h2>Fallen: Godan, obwohl auf -iru / -eru</h2>
+        <ul class="word-list">${TRAP_VERBS.map((v) => html`<li><span>${jp(furiWord(v.dict, v.reading))} → ${jp(verbForm(v.v, 'masu').furi)}</span><span class="muted">${v.de}</span></li>`)}</ul></section>
+      <section class="card"><h2>Verwechslungspaare</h2>
+        ${VERB_PAIRS.map((pair) => html`<div class="pair">${pair.map((v) => html`<div class="pair-verb">
+          <div>${jp(furiWord(v.dict, v.reading))} <span class="badge soft">${v.group === 1 ? 'Godan' : 'Ichidan'}</span></div>
+          <div class="muted small">${v.de}</div>
+          <div class="small">${['masu', 'nai', 'te'].map((f) => jp(verbForm(v.v, f).furi))}</div></div>`)}</div>`)}</section>
+      <h2 class="list-heading">Alle Formen im Vergleich</h2>
+      ${compare.map((v) => html`<details class="card list-item"><summary><span>${jp(furiWord(v[0], v[1]))}</span><span class="muted">${['', 'Godan', 'Ichidan', 'unregelmäßig'][v[2]]}</span></summary>
+        ${formGrid(formKeys.map((f) => [FORMS[f].label, verbForm(v, f)]))}</details>`)}`;
+  },
+  relative() {
+    return html`
+      <section class="card"><h2>So funktionieren Relativsätze</h2>${rules([
+        'Der beschreibende Satz steht **vor** dem Nomen, ohne Relativpronomen: めがねをかけている{人|ひと} = die Person, die eine Brille trägt.',
+        'Vor dem Nomen steht die **einfache Form**: {行|い}く, {行|い}った, {行|い}かない, {行|い}かなかった, {行|い}っている – nicht {行|い}きます.',
+        'Das Subjekt im Relativsatz bekommt **が** (oder の), nicht は: {私|わたし}が{作|つく}ったケーキ / {私|わたし}の{作|つく}ったケーキ.',
+        'い-Adjektive stehen direkt vor dem Nomen, な-Adjektive mit な, Nomen mit の: {背|せ}が{高|たか}い{人|ひと}, {静|しず}かな{町|まち}, {日本人|にほんじん}の{友達|ともだち}.',
+        'Die Zeitform zählt: {来|く}る{人|ひと} (wer kommt) – {来|き}た{人|ひと} (wer gekommen ist).',
+      ])}</section>
+      <section class="card"><h2>Beispiele</h2>${examples(relative.choice ?? [], null, 10)}</section>`;
+  },
+  conditional() {
+    return html`
+      <section class="card"><h2>„Wenn“ und „als“ auf Japanisch</h2>
+        <p class="muted small">Im Deutschen reichen zwei Wörter, im Japanischen hängt es davon ab, was gemeint ist.</p></section>
+      ${CONDITIONALS.map(([topic, name, lesson, form, meaning]) => html`<section class="card grammar-point">
+        <h2><span class="guide-key" lang="ja">${name}</span> <span class="muted small">${lesson}</span></h2>
+        <p><strong>Bildung:</strong> ${rich(form)}</p><p>${rich(meaning)}</p>
+        ${examples(conditional.choice ?? [], topic, 3)}</section>`)}`;
+  },
+  while() {
+    return html`
+      <section class="card"><h2>„Während“ auf Japanisch</h2>
+        <p class="muted small">${rich('ながら für zwei gleichzeitige Handlungen derselben Person, {間|あいだ} und {間|あいだ}に für Zeiträume, {中|ちゅう} nach Nomen.')}</p></section>
+      ${WHILES.map(([topic, name, form, meaning]) => html`<section class="card grammar-point">
+        <h2><span class="guide-key">${jp(name)}</span></h2>
+        <p><strong>Bildung:</strong> ${rich(form)}</p><p>${rich(meaning)}</p>
+        ${examples(whileData.choice ?? [], topic, 3)}</section>`)}`;
   },
   particles() {
     return html`<ul class="guide">${PARTICLE_GUIDE.map(([p, text, example]) => html`<li class="card"><div class="guide-head"><span class="guide-key" lang="ja">${p}</span><span>${text}</span></div><div class="guide-example">${jp(example)}</div></li>`)}</ul>`;

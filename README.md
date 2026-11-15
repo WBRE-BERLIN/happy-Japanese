@@ -1,6 +1,7 @@
 # Happy Japanese
 
-Ein Lernbegleiter für den Japanischkurs mit **Minna no Nihongo I** (Lektion 1–25),
+Ein Lernbegleiter für den Japanischkurs mit **Minna no Nihongo I** (Lektion 1–25,
+erste Grammatik aus Teil II bis Lektion 50),
 als Web-App für das iPhone. Keine Lektionen zum Durcharbeiten, sondern Übungen
 zu allem, was man im Unterricht braucht und gern vergisst: Vokabeln,
 Verbformen, Partikel, Zahlen, Zählwörter, Uhrzeit, Datum, Kanji – und
@@ -24,7 +25,7 @@ Japanisch für die nächste Reise. Mit Katze Mochi. 🐈
 | **Kanji** | 175 Kanji (N5, N4, Reise): Bedeutung, Lesung von Wörtern, Kanji erkennen |
 | **Partikel** | 183 Lückensätze, Partikel aus einer Palette einsetzen, mit Erklärung |
 | **Verbformen** | ます, ません, ました, て, ない, た, なかった, たら, ても … selbst bilden (140 Verben) |
-| **Verbgruppen** | Gruppe I, II oder III – mit den Fallen (帰る, 入る, 見ます, 起きます …) |
+| **Godan & Ichidan** | Gruppe I, II oder III erkennen (aus der ます- oder Wörterbuchform), Formen in der richtigen Gruppe bilden, Verwechslungspaare wie 帰る/変える und 切る/着る; 20 Fallen-Verben auf -iru/-eru, die trotzdem Godan sind |
 | **Verben im Satz** | 177 Sätze: das fehlende Verb in der richtigen Form einsetzen |
 | **Adjektivformen** | い- und な-Adjektive (120 Wörter) in allen Formen, auch いい → よくない |
 | **い oder な?** | Adjektivart erkennen (きれい, 有名, 嫌い …) |
@@ -33,6 +34,9 @@ Japanisch für die nächste Reise. Mit Katze Mochi. 🐈
 | **Satzbau** | 96 Sätze aus Bausteinen in die richtige Reihenfolge bringen |
 | **Fragewörter** | 何, だれ, どこ, いつ, いくら, どうして … |
 | **Höflich ↔ Einfach** | ます-Form und einfache Form (Lektion 20) |
+| **Relativsätze** | めがねをかけている人: Sätze vor dem Nomen – 43 Auswahlfragen, 40 Verbformen bilden, 25 Sätze bauen (Lektion 22) |
+| **Wenn & als** | とき, と, たら, ても, ば, なら – und 行くとき oder 行ったとき? 70 Auswahlfragen, 46 Verbformen (Lektion 23, 25, 35) |
+| **Während** | ながら, 〜間, 〜間に, 〜中 – 42 Auswahlfragen, 32 Verbformen (Minna II, Lektion 28) |
 | **Zahlen** | große Zahlen mit 万 und 億 aus Bausteinen bilden, aus Kana oder Kanji lesen, hören |
 | **Preise & Geld** | Preise sagen und verstehen (よえん!) |
 | **Uhrzeit** | analoge und digitale Uhr, よじ, しちじ, くじ, いっぷん … |
@@ -47,7 +51,10 @@ Japanisch für die nächste Reise. Mit Katze Mochi. 🐈
 
 Unter **Nachschlagen** stehen alle Verben und Adjektive in allen Formen, alle
 Zählwörter von 1 bis 10, Zahlen mit Lautwandel, Uhrzeiten, Tage des Monats,
-die Kana-Tabellen, alle Kanji, Schilder, Reise-Sätze und eine Partikel-Übersicht.
+die Kana-Tabellen, alle Kanji, Schilder, Reise-Sätze, eine Partikel-Übersicht und
+die Grammatik zum Nachlesen: Godan & Ichidan erkennen (mit allen Fallen und
+Verwechslungspaaren), Relativsätze, Wenn & als (とき, と, たら, ても, ば, なら) und
+Während (ながら, 間, 間に, 中) – jeweils mit Bildung, Bedeutung und Beispielsätzen.
 
 ## Wie die App merkt, wo es hakt
 
@@ -63,7 +70,8 @@ die Kana-Tabellen, alle Kanji, Schilder, Reise-Sätze und eine Partikel-Übersic
 - Aufgaben, die immer wieder danebengehen, stehen unter **Fortschritt →
   Problemfälle**.
 - **„Ich bin bei Lektion …“** auf der Startseite begrenzt alle Übungen auf den
-  Stoff bis zu deiner Lektion.
+  Stoff bis zu deiner Lektion (1–50; ab 26 Minna no Nihongo II). Relativsätze,
+  Wenn & als und Während sind davon ausgenommen: die übst du gezielt, wann du willst.
 - Neue Aufgaben kommen Lektion für Lektion, innerhalb einer Lektion aber in
   zufälliger Reihenfolge. Zusammengehöriges (dasselbe Wort in beide Richtungen,
   mehrere Formen desselben Verbs, dasselbe Zählwort) kommt nicht in derselben

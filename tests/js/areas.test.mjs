@@ -78,3 +78,16 @@ test('every tag of every item has a readable label', () => {
   }
   assert.deepEqual([...unlabeled], []);
 });
+
+test('every reference page of an area exists and shows furigana over all kanji', async () => {
+  const { renderList } = await import('../../public/assets/js/views/lists.js');
+  for (const area of AREAS.filter((a) => a.ref)) {
+    const main = { innerHTML: '', querySelector: () => null, querySelectorAll: () => [], addEventListener() {} };
+    renderList({ settings: {}, state: {} }, main, [area.ref]);
+    assert.ok(main.innerHTML.length > 500, `${area.id}: reference page ${area.ref} is empty`);
+    if (['godan', 'relative', 'conditional', 'while'].includes(area.ref)) {
+      const naked = main.innerHTML.replace(/<ruby>.*?<\/ruby>/g, '').replace(/<[^>]+>/g, ' ');
+      assert.deepEqual(naked.match(/[一-鿿々]+/g) ?? [], [], `${area.ref}: kanji without furigana`);
+    }
+  }
+});
